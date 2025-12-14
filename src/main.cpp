@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cstdio>
 #include <iostream>
+#include <cmath>
+#include <cfloat>
 
 struct Point
 {
@@ -18,12 +20,63 @@ enum Direction
     RIGHT
 };
 
+class Bullet
+{
+public:
+    float positionX, positionY;  // 使用浮点数位置
+    float directionX, directionY;  // 使用浮点数方向
+    float speed;
+    int lifetime;
+    
+    Bullet(Point startPos, Point targetPos, float bulletSpeed)
+    {
+        positionX = startPos.x;
+        positionY = startPos.y;
+        speed = bulletSpeed;
+        lifetime = 50;  // 炮弹生存时间
+        
+        // 计算方向向量
+        float dx = targetPos.x - startPos.x;
+        float dy = targetPos.y - startPos.y;
+        float length = sqrt(dx * dx + dy * dy);
+        
+        if (length > 0)
+        {
+            directionX = dx / length;
+            directionY = dy / length;
+        }
+        else
+        {
+            directionX = 0;
+            directionY = -1;  // 默认向上
+        }
+    }
+    
+    void update()
+    {
+        lifetime--;
+        positionX += directionX * speed;
+        positionY += directionY * speed;
+    }
+    
+    bool isAlive() const { return lifetime > 0; }
+    
+    // 获取整数位置用于碰撞检测
+    Point getPosition() const 
+    { 
+        return {static_cast<int>(positionX), static_cast<int>(positionY)}; 
+    }
+};
+
 class Enemy
 {
 public:
     Point position;
     float speed;
     int moveCounter;
+    int maxHealth;
+    int currentHealth;
+    int knockbackCounter;
     
     Enemy(int x, int y, float moveSpeed)
     {
@@ -31,10 +84,20 @@ public:
         position.y = y;
         speed = moveSpeed;
         moveCounter = 0;
+        maxHealth = 3;  // 敌人需要被击中3次才能消灭
+        currentHealth = maxHealth;
+        knockbackCounter = 0;
     }
     
     void update(const Point& target)
     {
+        // 处理击退效果
+        if (knockbackCounter > 0)
+        {
+            knockbackCounter--;
+            return;  // 击退期间不移动
+        }
+        
         moveCounter++;
         if (moveCounter >= speed)
         {
@@ -48,6 +111,29 @@ public:
             else if (target.y > position.y) position.y++;
         }
     }
+    
+    void takeDamage()
+    {
+        currentHealth--;
+        knockbackCounter = 20;  // 被击中后的击退时间
+    }
+    
+    void knockback(const Point& from)
+    {
+        // 计算击退方向
+        int dx = position.x - from.x;
+        int dy = position.y - from.y;
+        
+        // 归一化并应用击退
+        if (dx != 0) position.x += (dx > 0 ? 2 : -2);
+        if (dy != 0) position.y += (dy > 0 ? 2 : -2);
+        
+        // 确保不超出边界
+        if (position.x < 0) position.x = 0;
+        if (position.y < 0) position.y = 0;
+    }
+    
+    bool isAlive() const { return currentHealth > 0; }
 };
 
 class SnakeGame
@@ -61,6 +147,48 @@ private:
     bool gameOver;
     int score;
     std::vector<Enemy> enemies;
+    std::vector<Bullet> bullets;
+    int shootCooldown;
+    
+    // 找到最近的敌人
+    Enemy* findNearestEnemy()
+    {
+        if (enemies.empty()) return nullptr;
+        
+        Enemy* nearest = nullptr;
+        float minDistance = FLT_MAX;
+        
+        for (auto& enemy : enemies)
+        {
+            if (!enemy.isAlive()) continue;
+            
+            float dx = enemy.position.x - snake[0].x;
+            float dy = enemy.position.y - snake[0].y;
+            float distance = sqrt(dx * dx + dy * dy);
+            
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = &enemy;
+            }
+        }
+        
+        return nearest;
+    }
+    
+    // 发射炮弹
+    void shoot()
+    {
+        if (shootCooldown > 0) return;
+        
+        Enemy* target = findNearestEnemy();
+        if (target)
+        {
+            // 从蛇头发射炮弹
+            bullets.push_back(Bullet(snake[0], target->position, 0.8f));
+            shootCooldown = 20;  // 发射冷却时间
+        }
+    }
 
 public:
     SnakeGame(int width, int height)
@@ -91,6 +219,10 @@ public:
         enemies.push_back(Enemy(gridWidth - 3, 2, 12.0f));  // 右上角
         enemies.push_back(Enemy(2, gridHeight - 3, 12.0f));  // 左下角
         enemies.push_back(Enemy(gridWidth - 3, gridHeight - 3, 10.0f));  // 右下角，移动较快
+        
+        // 初始化炮弹系统
+        bullets.clear();
+        shootCooldown = 0;
     }
 
     void generateFood()
@@ -118,10 +250,72 @@ public:
         if (gameOver)
             return;
 
+        // 更新射击冷却
+        if (shootCooldown > 0) shootCooldown--;
+
+        // 自动发射炮弹
+        shoot();
+
+        // 更新炮弹位置
+        for (auto bullet = bullets.begin(); bullet != bullets.end();)
+        {
+            bullet->update();
+            
+            // 获取炮弹的整数位置
+            Point bulletPos = bullet->getPosition();
+            
+            // 检查炮弹是否超出边界或生存时间结束
+            if (!bullet->isAlive() || bulletPos.x < 0 || bulletPos.x >= gridWidth || 
+                bulletPos.y < 0 || bulletPos.y >= gridHeight)
+            {
+                bullet = bullets.erase(bullet);
+            }
+            else
+            {
+                // 检查炮弹与敌人的碰撞
+                bool hit = false;
+                for (auto &enemy : enemies)
+                {
+                    if (!enemy.isAlive()) continue;
+                    
+                    // 简单的圆形碰撞检测
+                    float dx = bullet->positionX - enemy.position.x;
+                    float dy = bullet->positionY - enemy.position.y;
+                    float distance = sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 1.0f)  // 碰撞半径
+                    {
+                        enemy.takeDamage();
+                        enemy.knockback(bulletPos);
+                        hit = true;
+                        
+                        // 如果敌人被消灭，增加分数
+                        if (!enemy.isAlive())
+                        {
+                            score += 5;  // 消灭敌人获得额外分数
+                        }
+                        break;
+                    }
+                }
+                
+                if (hit)
+                {
+                    bullet = bullets.erase(bullet);
+                }
+                else
+                {
+                    bullet++;
+                }
+            }
+        }
+
         // 更新敌人位置
         for (auto &enemy : enemies)
         {
-            enemy.update(snake[0]);  // 敌人追踪蛇头
+            if (enemy.isAlive())
+            {
+                enemy.update(snake[0]);  // 敌人追踪蛇头
+            }
         }
 
         // 计算新的头部位置
@@ -164,6 +358,8 @@ public:
         // 检查与敌人的碰撞
         for (const auto &enemy : enemies)
         {
+            if (!enemy.isAlive()) continue;
+            
             if (newHead.x == enemy.position.x && newHead.y == enemy.position.y)
             {
                 gameOver = true;
@@ -254,11 +450,45 @@ public:
         // 绘制敌人
         for (const auto &enemy : enemies)
         {
+            if (!enemy.isAlive()) continue;
+            
             int x = offsetX + enemy.position.x * cellSize;
             int y = offsetY + enemy.position.y * cellSize;
-            // 用橙色绘制敌人，并添加边框使其更醒目
-            tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0xA5, 0x00));
+            
+            // 根据血量调整颜色
+            int healthRatio = (enemy.currentHealth * 255) / enemy.maxHealth;
+            TPixel enemyColor = tigrRGB(255, 165 - (165 - healthRatio), 0);
+            
+            // 用橙色到红色的渐变绘制敌人
+            tigrFillRect(screen, x, y, cellSize, cellSize, enemyColor);
             tigrRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+            
+            // 显示血量条
+            if (enemy.currentHealth < enemy.maxHealth)
+            {
+                int barWidth = cellSize - 2;
+                int barHeight = 2;
+                int barX = x + 1;
+                int barY = y - 4;
+                
+                // 血量条背景
+                tigrFillRect(screen, barX, barY, barWidth, barHeight, tigrRGB(0x80, 0x00, 0x00));
+                
+                // 当前血量
+                int healthWidth = (enemy.currentHealth * barWidth) / enemy.maxHealth;
+                tigrFillRect(screen, barX, barY, healthWidth, barHeight, tigrRGB(0x00, 0xFF, 0x00));
+            }
+        }
+        
+        // 绘制炮弹
+        for (const auto &bullet : bullets)
+        {
+            int x = offsetX + static_cast<int>(bullet.positionX) * cellSize + cellSize / 2;
+            int y = offsetY + static_cast<int>(bullet.positionY) * cellSize + cellSize / 2;
+            
+            // 用蓝色圆形绘制炮弹
+            tigrFillCircle(screen, x, y, cellSize / 3, tigrRGB(0x00, 0x00, 0xFF));
+            tigrCircle(screen, x, y, cellSize / 3, tigrRGB(0x00, 0x80, 0xFF));
         }
 
         // 显示分数
