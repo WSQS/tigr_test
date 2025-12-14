@@ -295,12 +295,10 @@ int main(int argc, char *argv[])
 
         // 处理输入
         game.handleInput(screen);
-        std::cout << "deltaTime: " << deltaTime << std::endl;
 
         // 按固定间隔更新游戏状态
         if (accumulator >= updateInterval)
         {
-            std::cout << "update" << std::endl;
             game.update();
             accumulator -= updateInterval;
         }
