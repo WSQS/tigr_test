@@ -150,6 +150,12 @@ private:
     std::vector<Bullet> bullets;
     int shootCooldown;
     
+    // 敌人生成系统
+    int enemySpawnTimer;
+    int enemySpawnInterval;
+    int maxEnemies;
+    int gameTimer;  // 游戏运行时间，用于难度递增
+    
     // 找到最近的敌人
     Enemy* findNearestEnemy()
     {
@@ -189,6 +195,110 @@ private:
             shootCooldown = 20;  // 发射冷却时间
         }
     }
+    
+    // 检查位置是否被占用
+    bool isPositionOccupied(int x, int y)
+    {
+        // 检查蛇身
+        for (const auto& segment : snake)
+        {
+            if (segment.x == x && segment.y == y) return true;
+        }
+        
+        // 检查敌人
+        for (const auto& enemy : enemies)
+        {
+            if (enemy.isAlive() && enemy.position.x == x && enemy.position.y == y) return true;
+        }
+        
+        // 检查食物
+        if (food.x == x && food.y == y) return true;
+        
+        return false;
+    }
+    
+    // 生成新敌人
+    void spawnEnemy()
+    {
+        // 计算当前存活的敌人数量
+        int aliveEnemies = 0;
+        for (const auto& enemy : enemies)
+        {
+            if (enemy.isAlive()) aliveEnemies++;
+        }
+        
+        // 如果达到最大数量，不生成新敌人
+        if (aliveEnemies >= maxEnemies) return;
+        
+        // 尝试在边界附近生成敌人
+        const int maxAttempts = 50;
+        bool spawned = false;
+        
+        for (int attempt = 0; attempt < maxAttempts && !spawned; attempt++)
+        {
+            int x, y;
+            int side = std::rand() % 4;  // 随机选择四个边之一
+            
+            switch (side)
+            {
+            case 0:  // 上边
+                x = std::rand() % gridWidth;
+                y = 0;
+                break;
+            case 1:  // 右边
+                x = gridWidth - 1;
+                y = std::rand() % gridHeight;
+                break;
+            case 2:  // 下边
+                x = std::rand() % gridWidth;
+                y = gridHeight - 1;
+                break;
+            case 3:  // 左边
+                x = 0;
+                y = std::rand() % gridHeight;
+                break;
+            default:
+                continue;
+            }
+            
+            // 确保位置不被占用且不要太靠近蛇头
+            if (!isPositionOccupied(x, y))
+            {
+                float dx = x - snake[0].x;
+                float dy = y - snake[0].y;
+                float distance = sqrt(dx * dx + dy * dy);
+                
+                if (distance > 5.0f)  // 至少距离蛇头5格
+                {
+                    // 随机敌人速度，随着游戏进行变快
+                    float baseSpeed = 15.0f;
+                    float speedVariation = (gameTimer / 1000.0f);  // 每100秒速度增加1
+                    float enemySpeed = baseSpeed - speedVariation;
+                    if (enemySpeed < 5.0f) enemySpeed = 5.0f;  // 最小速度限制
+                    
+                    enemies.push_back(Enemy(x, y, enemySpeed));
+                    spawned = true;
+                }
+            }
+        }
+    }
+    
+    // 更新敌人生成系统
+    void updateEnemySpawn()
+    {
+        gameTimer++;
+        enemySpawnTimer++;
+        
+        // 随着时间推移，加快敌人生成速度
+        int currentInterval = enemySpawnInterval - (gameTimer / 500);  // 每50秒加快一次生成
+        if (currentInterval < 100) currentInterval = 100;  // 最小生成间隔限制
+        
+        if (enemySpawnTimer >= currentInterval)
+        {
+            spawnEnemy();
+            enemySpawnTimer = 0;
+        }
+    }
 
 public:
     SnakeGame(int width, int height)
@@ -223,6 +333,12 @@ public:
         // 初始化炮弹系统
         bullets.clear();
         shootCooldown = 0;
+        
+        // 初始化敌人生成系统
+        enemySpawnTimer = 0;
+        enemySpawnInterval = 300;  // 初始30秒生成一个新敌人（假设每秒10次更新）
+        maxEnemies = 8;  // 最大敌人数量
+        gameTimer = 0;
     }
 
     void generateFood()
@@ -255,6 +371,9 @@ public:
 
         // 自动发射炮弹
         shoot();
+        
+        // 更新敌人生成系统
+        updateEnemySpawn();
 
         // 更新炮弹位置
         for (auto bullet = bullets.begin(); bullet != bullets.end();)
