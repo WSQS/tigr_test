@@ -118,7 +118,7 @@ public:
         knockbackCounter = 20;  // 被击中后的击退时间
     }
     
-    void knockback(const Point& from)
+    void knockback(const Point& from, int maxWidth, int maxHeight)
     {
         // 计算击退方向
         int dx = position.x - from.x;
@@ -130,7 +130,9 @@ public:
         
         // 确保不超出边界
         if (position.x < 0) position.x = 0;
+        if (position.x >= maxWidth) position.x = maxWidth - 1;
         if (position.y < 0) position.y = 0;
+        if (position.y >= maxHeight) position.y = maxHeight - 1;
     }
     
     bool isAlive() const { return currentHealth > 0; }
@@ -276,9 +278,9 @@ private:
                 {
                     // 随机敌人速度，随着游戏进行变快
                     float baseSpeed = 15.0f;
-                    float speedVariation = (gameTimer / 1000.0f);  // 每100秒速度增加1
+                    float speedVariation = (gameTimer / 600.0f);  // 每60秒速度增加1（更快）
                     float enemySpeed = baseSpeed - speedVariation;
-                    if (enemySpeed < 5.0f) enemySpeed = 5.0f;  // 最小速度限制
+                    if (enemySpeed < 3.0f) enemySpeed = 3.0f;  // 更低的最小速度限制
                     
                     enemies.push_back(Enemy(x, y, enemySpeed));
                     spawned = true;
@@ -294,8 +296,8 @@ private:
         enemySpawnTimer++;
         
         // 随着时间推移，加快敌人生成速度
-        int currentInterval = enemySpawnInterval - (gameTimer / 500);  // 每50秒加快一次生成
-        if (currentInterval < 100) currentInterval = 100;  // 最小生成间隔限制
+        int currentInterval = enemySpawnInterval - (gameTimer / 300);  // 每30秒加快一次生成（更快）
+        if (currentInterval < 50) currentInterval = 50;  // 更小的最小生成间隔限制
         
         if (enemySpawnTimer >= currentInterval)
         {
@@ -372,8 +374,8 @@ public:
         
         // 初始化敌人生成系统
         enemySpawnTimer = 0;
-        enemySpawnInterval = 300;  // 初始30秒生成一个新敌人（假设每秒10次更新）
-        maxEnemies = 8;  // 最大敌人数量
+        enemySpawnInterval = 150;  // 初始15秒生成一个新敌人（加快刷新频率）
+        maxEnemies = 10;  // 增加最大敌人数量
         gameTimer = 0;
         
         // 初始化蛇的生命系统
@@ -448,7 +450,7 @@ public:
                     if (distance < 1.0f)  // 碰撞半径
                     {
                         enemy.takeDamage();
-                        enemy.knockback(bulletPos);
+                        enemy.knockback(bulletPos, gridWidth, gridHeight);
                         hit = true;
                         
                         // 如果敌人被消灭，增加分数
@@ -587,6 +589,8 @@ public:
         }
     }
 
+    size_t getSnakeLength() const { return snake.size(); }
+    
     void draw(Tigr *screen)
     {
         // 清屏
@@ -717,7 +721,7 @@ int main(int argc, char *argv[])
     SnakeGame game(640, 480);
 
     float accumulator = 0.0f;
-    const float updateInterval = 0.1f; // 每0.1秒更新一次游戏状态
+    float baseUpdateInterval = 0.1f; // 基础更新间隔
 
     while (!tigrClosed(screen))
     {
@@ -728,11 +732,17 @@ int main(int argc, char *argv[])
         // 处理输入
         game.handleInput(screen);
 
-        // 按固定间隔更新游戏状态
-        if (accumulator >= updateInterval)
+// 根据蛇的长度计算动态更新间隔（长度越长，移动越快）
+        float speedBonus = (game.getSnakeLength() - 3) * 0.005f; // 每增加1节长度，速度提升0.005秒
+        if (speedBonus > 0.08f) speedBonus = 0.08f; // 最大速度提升限制
+        float currentUpdateInterval = baseUpdateInterval - speedBonus;
+        if (currentUpdateInterval < 0.05f) currentUpdateInterval = 0.05f; // 最小更新间隔限制
+
+        // 按动态间隔更新游戏状态
+        if (accumulator >= currentUpdateInterval)
         {
             game.update();
-            accumulator -= updateInterval;
+            accumulator -= currentUpdateInterval;
         }
 
         // 绘制游戏
