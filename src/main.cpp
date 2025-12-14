@@ -18,6 +18,38 @@ enum Direction
     RIGHT
 };
 
+class Enemy
+{
+public:
+    Point position;
+    float speed;
+    int moveCounter;
+    
+    Enemy(int x, int y, float moveSpeed)
+    {
+        position.x = x;
+        position.y = y;
+        speed = moveSpeed;
+        moveCounter = 0;
+    }
+    
+    void update(const Point& target)
+    {
+        moveCounter++;
+        if (moveCounter >= speed)
+        {
+            moveCounter = 0;
+            
+            // 简单的追踪AI：向目标方向移动
+            if (target.x < position.x) position.x--;
+            else if (target.x > position.x) position.x++;
+            
+            if (target.y < position.y) position.y--;
+            else if (target.y > position.y) position.y++;
+        }
+    }
+};
+
 class SnakeGame
 {
 private:
@@ -28,6 +60,7 @@ private:
     int gridWidth, gridHeight;
     bool gameOver;
     int score;
+    std::vector<Enemy> enemies;
 
 public:
     SnakeGame(int width, int height)
@@ -50,6 +83,14 @@ public:
 
         // 生成第一个食物
         generateFood();
+        
+        // 初始化敌人
+        enemies.clear();
+        // 在四个角落各放置一个敌人
+        enemies.push_back(Enemy(2, 2, 15.0f));  // 左上角，移动较慢
+        enemies.push_back(Enemy(gridWidth - 3, 2, 12.0f));  // 右上角
+        enemies.push_back(Enemy(2, gridHeight - 3, 12.0f));  // 左下角
+        enemies.push_back(Enemy(gridWidth - 3, gridHeight - 3, 10.0f));  // 右下角，移动较快
     }
 
     void generateFood()
@@ -76,6 +117,12 @@ public:
     {
         if (gameOver)
             return;
+
+        // 更新敌人位置
+        for (auto &enemy : enemies)
+        {
+            enemy.update(snake[0]);  // 敌人追踪蛇头
+        }
 
         // 计算新的头部位置
         Point newHead = snake[0];
@@ -111,6 +158,26 @@ public:
             {
                 gameOver = true;
                 return;
+            }
+        }
+
+        // 检查与敌人的碰撞
+        for (const auto &enemy : enemies)
+        {
+            if (newHead.x == enemy.position.x && newHead.y == enemy.position.y)
+            {
+                gameOver = true;
+                return;
+            }
+            
+            // 检查敌人是否碰到蛇身
+            for (const auto &segment : snake)
+            {
+                if (segment.x == enemy.position.x && segment.y == enemy.position.y)
+                {
+                    gameOver = true;
+                    return;
+                }
             }
         }
 
@@ -183,6 +250,16 @@ public:
 
         // 绘制食物
         tigrFillRect(screen, offsetX + food.x * cellSize, offsetY + food.y * cellSize, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+        
+        // 绘制敌人
+        for (const auto &enemy : enemies)
+        {
+            int x = offsetX + enemy.position.x * cellSize;
+            int y = offsetY + enemy.position.y * cellSize;
+            // 用橙色绘制敌人，并添加边框使其更醒目
+            tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0xA5, 0x00));
+            tigrRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+        }
 
         // 显示分数
         char scoreText[32];
