@@ -156,6 +156,10 @@ private:
     int maxEnemies;
     int gameTimer;  // 游戏运行时间，用于难度递增
     
+    // 蛇的生命系统
+    int invulnerableTimer;
+    bool isHit;
+    
     // 找到最近的敌人
     Enemy* findNearestEnemy()
     {
@@ -299,6 +303,38 @@ private:
             enemySpawnTimer = 0;
         }
     }
+    
+    // 蛇受伤处理
+    void takeDamage()
+    {
+        if (invulnerableTimer > 0) return;  // 无敌时间内不受伤
+        
+        // 如果蛇长度大于1，减少长度
+        if (snake.size() > 1)
+        {
+            snake.pop_back();  // 移除尾部
+            invulnerableTimer = 50;  // 5秒无敌时间（假设每秒10次更新）
+            isHit = true;
+        }
+        else
+        {
+            // 长度为1时，游戏结束
+            gameOver = true;
+        }
+    }
+    
+    // 更新无敌时间
+    void updateInvulnerability()
+    {
+        if (invulnerableTimer > 0)
+        {
+            invulnerableTimer--;
+            if (invulnerableTimer == 0)
+            {
+                isHit = false;
+            }
+        }
+    }
 
 public:
     SnakeGame(int width, int height)
@@ -339,6 +375,10 @@ public:
         enemySpawnInterval = 300;  // 初始30秒生成一个新敌人（假设每秒10次更新）
         maxEnemies = 8;  // 最大敌人数量
         gameTimer = 0;
+        
+        // 初始化蛇的生命系统
+        invulnerableTimer = 0;
+        isHit = false;
     }
 
     void generateFood()
@@ -374,6 +414,9 @@ public:
         
         // 更新敌人生成系统
         updateEnemySpawn();
+        
+        // 更新无敌时间
+        updateInvulnerability();
 
         // 更新炮弹位置
         for (auto bullet = bullets.begin(); bullet != bullets.end();)
@@ -460,7 +503,10 @@ public:
         if (newHead.x < 0 || newHead.x >= gridWidth ||
             newHead.y < 0 || newHead.y >= gridHeight)
         {
-            gameOver = true;
+            takeDamage();
+            if (gameOver) return;
+            
+            // 如果没有死亡，不移动到新位置
             return;
         }
 
@@ -469,7 +515,10 @@ public:
         {
             if (newHead.x == segment.x && newHead.y == segment.y)
             {
-                gameOver = true;
+                takeDamage();
+                if (gameOver) return;
+                
+                // 如果没有死亡，不移动到新位置
                 return;
             }
         }
@@ -481,7 +530,10 @@ public:
             
             if (newHead.x == enemy.position.x && newHead.y == enemy.position.y)
             {
-                gameOver = true;
+                takeDamage();
+                if (gameOver) return;
+                
+                // 如果没有死亡，不移动到新位置
                 return;
             }
             
@@ -490,7 +542,10 @@ public:
             {
                 if (segment.x == enemy.position.x && segment.y == enemy.position.y)
                 {
-                    gameOver = true;
+                    takeDamage();
+                    if (gameOver) return;
+                    
+                    // 如果没有死亡，不移动到新位置
                     return;
                 }
             }
@@ -555,11 +610,27 @@ public:
             // 头部用不同颜色
             if (i == 0)
             {
-                tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0x00, 0xFF, 0x00));
+                // 无敌时间内闪烁效果
+                if (isHit && (invulnerableTimer % 10 < 5))
+                {
+                    tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0xFF, 0x00));  // 黄色闪烁
+                }
+                else
+                {
+                    tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0x00, 0xFF, 0x00));  // 正常绿色
+                }
             }
             else
             {
-                tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0x00, 0x80, 0x00));
+                // 无敌时间内蛇身也闪烁
+                if (isHit && (invulnerableTimer % 10 < 5))
+                {
+                    tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0x80, 0x00));  // 橙色闪烁
+                }
+                else
+                {
+                    tigrFillRect(screen, x, y, cellSize, cellSize, tigrRGB(0x00, 0x80, 0x00));  // 正常深绿色
+                }
             }
         }
 
@@ -610,10 +681,22 @@ public:
             tigrCircle(screen, x, y, cellSize / 3, tigrRGB(0x00, 0x80, 0xFF));
         }
 
-        // 显示分数
+        // 显示分数和长度
         char scoreText[32];
         sprintf(scoreText, "Score: %d", score);
         tigrPrint(screen, tfont, offsetX + 5, offsetY + 5, tigrRGB(0xFF, 0xFF, 0xFF), scoreText);
+        
+        char lengthText[32];
+        sprintf(lengthText, "Length: %zu", snake.size());
+        tigrPrint(screen, tfont, offsetX + 5, offsetY + 20, tigrRGB(0xFF, 0xFF, 0xFF), lengthText);
+        
+        // 显示无敌时间
+        if (invulnerableTimer > 0)
+        {
+            char invulnText[32];
+            sprintf(invulnText, "Shield: %.1f", invulnerableTimer / 10.0f);
+            tigrPrint(screen, tfont, offsetX + 5, offsetY + 35, tigrRGB(0xFF, 0xFF, 0x00), invulnText);
+        }
 
         // 游戏结束提示
         if (gameOver)
