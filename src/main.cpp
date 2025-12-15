@@ -22,6 +22,16 @@ enum Direction
     RIGHT
 };
 
+enum EnemyTrait
+{
+    TRAIT_SPEED_BOOST,      // 速度提升
+    TRAIT_HEALTH_BOOST,     // 血量提升
+    TRAIT_KNOCKBACK_RESIST, // 击退抗性
+    TRAIT_SPLIT,            // 分裂（死亡时分裂成小敌人）
+    TRAIT_GIANT,            // 巨大（体型更大）
+    TRAIT_COUNT             // 特性总数
+};
+
 class Bullet
 {
 public:
@@ -79,16 +89,65 @@ public:
     int maxHealth;
     int currentHealth;
     int knockbackCounter;
+    std::vector<EnemyTrait> traits;
+    float size;  // 敌人大小（用于巨大特性）
     
-    Enemy(int x, int y, float moveSpeed)
+    // 默认数值
+    static constexpr float BASE_SPEED = 15.0f;
+    static constexpr int BASE_HEALTH = 3;
+    static constexpr int BASE_KNOCKBACK = 20;
+    static constexpr float BASE_SIZE = 1.0f;
+    
+    Enemy(int x, int y, const std::vector<EnemyTrait>& enemyTraits = {})
     {
         position.x = x;
         position.y = y;
-        speed = moveSpeed;
+        traits = enemyTraits;
         moveCounter = 0;
-        maxHealth = 3;  // 敌人需要被击中3次才能消灭
+        
+        // 应用默认数值
+        speed = BASE_SPEED;
+        maxHealth = BASE_HEALTH;
+        size = BASE_SIZE;
+        
+        // 应用特性效果
+        for (const auto& trait : traits)
+        {
+            applyTrait(trait);
+        }
+        
         currentHealth = maxHealth;
         knockbackCounter = 0;
+    }
+    
+    bool hasTrait(EnemyTrait trait) const
+    {
+        return std::find(traits.begin(), traits.end(), trait) != traits.end();
+    }
+    
+    void applyTrait(EnemyTrait trait)
+    {
+        switch (trait)
+        {
+            case TRAIT_SPEED_BOOST:
+                speed *= 0.6f;  // 速度提升（移动间隔减少40%，可叠加）
+                break;
+            case TRAIT_HEALTH_BOOST:
+                maxHealth += 3;  // 血量+3（可叠加）
+                break;
+            case TRAIT_KNOCKBACK_RESIST:
+                // 击退抗性在takeDamage中处理（可叠加）
+                break;
+            case TRAIT_SPLIT:
+                // 分裂在死亡时处理（可叠加，会产生更多小敌人）
+                break;
+            case TRAIT_GIANT:
+                size += 0.5f;  // 体型每次增加0.5倍（可叠加）
+                maxHealth += 2;  // 每次额外+2血量（可叠加）
+                break;
+            default:
+                break;
+        }
     }
     
     void update(const std::vector<Point>& snake)
@@ -144,7 +203,15 @@ public:
     void takeDamage()
     {
         currentHealth--;
-        knockbackCounter = 20;  // 被击中后的击退时间
+        
+        // 根据击退抗性特性调整击退时间（支持叠加）
+        float knockback = BASE_KNOCKBACK;
+        int resistCount = std::count(traits.begin(), traits.end(), TRAIT_KNOCKBACK_RESIST);
+        for (int i = 0; i < resistCount; i++)
+        {
+            knockback *= 0.8f;  // 每个击退抗性减少20%击退时间（可叠加）
+        }
+        knockbackCounter = static_cast<int>(knockback);
     }
     
     void knockback(const Point& from, int maxWidth, int maxHeight)
@@ -313,13 +380,21 @@ private:
                 
                 if (distance > 5.0f)  // 至少距离蛇头5格
                 {
-                    // 随机敌人速度，随着游戏进行变快
-                    float baseSpeed = 15.0f;
-                    float speedVariation = (gameTimer / 600.0f);  // 每60秒速度增加1（更快）
-                    float enemySpeed = baseSpeed - speedVariation;
-                    if (enemySpeed < 3.0f) enemySpeed = 3.0f;  // 更低的最小速度限制
+                    // 根据游戏时间决定特性数量（每30秒增加1个，无上限）
+                    int maxTraitCount = gameTimer / 300;  // 每30秒增加1个特性
                     
-                    enemies.push_back(Enemy(x, y, enemySpeed));
+                    // 随机抽取特性（允许同一种特性叠加）
+                    std::vector<EnemyTrait> selectedTraits;
+                    
+                    int traitCount = std::rand() % (maxTraitCount + 1);  // 0到maxTraitCount个特性
+                    for (int i = 0; i < traitCount; i++)
+                    {
+                        // 随机选择一个特性（可以重复）
+                        EnemyTrait trait = static_cast<EnemyTrait>(std::rand() % TRAIT_COUNT);
+                        selectedTraits.push_back(trait);
+                    }
+                    
+                    enemies.push_back(Enemy(x, y, selectedTraits));
                     spawned = true;
                 }
             }
@@ -399,11 +474,11 @@ public:
         
         // 初始化敌人
         enemies.clear();
-        // 在四个角落各放置一个敌人
-        enemies.push_back(Enemy(2, 2, 15.0f));  // 左上角，移动较慢
-        enemies.push_back(Enemy(gridWidth - 3, 2, 12.0f));  // 右上角
-        enemies.push_back(Enemy(2, gridHeight - 3, 12.0f));  // 左下角
-        enemies.push_back(Enemy(gridWidth - 3, gridHeight - 3, 10.0f));  // 右下角，移动较快
+        // 在四个角落各放置一个敌人（初始无特性）
+        enemies.push_back(Enemy(2, 2, {}));  // 左上角
+        enemies.push_back(Enemy(gridWidth - 3, 2, {}));  // 右上角
+        enemies.push_back(Enemy(2, gridHeight - 3, {}));  // 左下角
+        enemies.push_back(Enemy(gridWidth - 3, gridHeight - 3, {}));  // 右下角
         
         // 初始化炮弹系统
         bullets.clear();
@@ -1024,6 +1099,39 @@ public:
                         if (!enemy.isAlive())
                         {
                             score += 5;  // 消灭敌人获得额外分数
+                            
+                            // 检查分裂特性（支持叠加）
+                            int splitCount = std::count(enemy.traits.begin(), enemy.traits.end(), TRAIT_SPLIT);
+                            if (splitCount > 0)
+                            {
+                                // 准备继承的特性（移除一个分裂特性）
+                                std::vector<EnemyTrait> inheritedTraits = enemy.traits;
+                                auto splitIt = std::find(inheritedTraits.begin(), inheritedTraits.end(), TRAIT_SPLIT);
+                                if (splitIt != inheritedTraits.end())
+                                {
+                                    inheritedTraits.erase(splitIt);  // 移除一个分裂特性
+                                }
+                                
+                                // 每个分裂特性产生2个小敌人
+                                int offsets[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, 
+                                                     {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+                                int targetSpawnCount = splitCount * 2;
+                                int spawnCount = 0;
+                                
+                                for (int i = 0; i < 8 && spawnCount < targetSpawnCount; i++)
+                                {
+                                    int newX = enemy.position.x + offsets[i][0];
+                                    int newY = enemy.position.y + offsets[i][1];
+                                    
+                                    // 检查位置是否有效
+                                    if (newX >= 0 && newX < gridWidth && newY >= 0 && newY < gridHeight &&
+                                        !isPositionOccupied(newX, newY))
+                                    {
+                                        enemies.push_back(Enemy(newX, newY, inheritedTraits));  // 继承特性（分裂-1）
+                                        spawnCount++;
+                                    }
+                                }
+                            }
                         }
                         break;
                     }
@@ -1234,18 +1342,58 @@ public:
             int x = offsetX + enemy.position.x * cellSize;
             int y = offsetY + enemy.position.y * cellSize;
             
+            // 根据巨大特性调整大小
+            int drawSize = cellSize;
+            if (enemy.hasTrait(TRAIT_GIANT))
+            {
+                drawSize = static_cast<int>(cellSize * enemy.size);
+                x -= (drawSize - cellSize) / 2;  // 居中绘制
+                y -= (drawSize - cellSize) / 2;
+            }
+            
             // 根据血量调整颜色
             int healthRatio = (enemy.currentHealth * 255) / enemy.maxHealth;
             TPixel enemyColor = tigrRGB(255, 165 - (165 - healthRatio), 0);
             
             // 用橙色到红色的渐变绘制敌人
-            tigrFillRect(screen, x, y, cellSize, cellSize, enemyColor);
-            tigrRect(screen, x, y, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+            tigrFillRect(screen, x, y, drawSize, drawSize, enemyColor);
+            
+            // 根据特性绘制不同颜色的边框
+            TPixel borderColor = tigrRGB(0xFF, 0x00, 0x00);  // 默认红色边框
+            
+            if (enemy.hasTrait(TRAIT_SPEED_BOOST))
+                borderColor = tigrRGB(0x00, 0x00, 0xFF);  // 蓝色：速度提升
+            else if (enemy.hasTrait(TRAIT_HEALTH_BOOST))
+                borderColor = tigrRGB(0x00, 0xFF, 0x00);  // 绿色：血量提升
+            else if (enemy.hasTrait(TRAIT_KNOCKBACK_RESIST))
+                borderColor = tigrRGB(0x80, 0x00, 0x80);  // 紫色：击退抗性
+            else if (enemy.hasTrait(TRAIT_SPLIT))
+                borderColor = tigrRGB(0xFF, 0xFF, 0x00);  // 黄色：分裂
+            
+            tigrRect(screen, x, y, drawSize, drawSize, borderColor);
+            
+            // 如果有多个特性，绘制内部边框显示第二个特性
+            if (enemy.traits.size() > 1)
+            {
+                TPixel secondBorderColor = tigrRGB(0xFF, 0xFF, 0xFF);
+                if (enemy.traits.size() > 1)
+                {
+                    if (enemy.traits[1] == TRAIT_SPEED_BOOST)
+                        secondBorderColor = tigrRGB(0x00, 0x00, 0xFF);
+                    else if (enemy.traits[1] == TRAIT_HEALTH_BOOST)
+                        secondBorderColor = tigrRGB(0x00, 0xFF, 0x00);
+                    else if (enemy.traits[1] == TRAIT_KNOCKBACK_RESIST)
+                        secondBorderColor = tigrRGB(0x80, 0x00, 0x80);
+                    else if (enemy.traits[1] == TRAIT_SPLIT)
+                        secondBorderColor = tigrRGB(0xFF, 0xFF, 0x00);
+                }
+                tigrRect(screen, x + 1, y + 1, drawSize - 2, drawSize - 2, secondBorderColor);
+            }
             
             // 显示血量条
             if (enemy.currentHealth < enemy.maxHealth)
             {
-                int barWidth = cellSize - 2;
+                int barWidth = drawSize - 2;
                 int barHeight = 2;
                 int barX = x + 1;
                 int barY = y - 4;
