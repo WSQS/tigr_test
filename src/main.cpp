@@ -347,7 +347,7 @@ private:
         if (snake.size() > 1)
         {
             snake.pop_back();  // 移除尾部
-            invulnerableTimer = 50;  // 5秒无敌时间（假设每秒10次更新）
+            invulnerableTimer = 10;  // 1秒无敌时间（假设每秒10次更新）
             isHit = true;
         }
         else
