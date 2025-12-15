@@ -230,7 +230,12 @@ private:
         {
             // 从蛇头发射炮弹
             bullets.push_back(Bullet(snake[0], target->position, 0.8f));
-            shootCooldown = 20;  // 发射冷却时间
+            
+            // 根据蛇的长度计算冷却时间：长度越长，冷却越短（攻击频率越高）
+            float cooldownReduction = (snake.size() - 3) * 0.5f;
+            int dynamicCooldown = 20 - static_cast<int>(cooldownReduction);
+            if (dynamicCooldown < 5) dynamicCooldown = 5;  // 最小冷却时间5帧
+            shootCooldown = dynamicCooldown;
         }
     }
     
