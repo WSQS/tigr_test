@@ -89,7 +89,7 @@ public:
         knockbackCounter = 0;
     }
     
-    void update(const Point& target)
+    void update(const std::vector<Point>& snake)
     {
         // 处理击退效果
         if (knockbackCounter > 0)
@@ -103,13 +103,40 @@ public:
         {
             moveCounter = 0;
             
-            // 简单的追踪AI：向目标方向移动
-            if (target.x < position.x) position.x--;
-            else if (target.x > position.x) position.x++;
+            // 找到最近的蛇身体部分
+            Point nearestTarget = findNearestSnakeSegment(snake);
             
-            if (target.y < position.y) position.y--;
-            else if (target.y > position.y) position.y++;
+            // 追踪最近的蛇身体部分
+            if (nearestTarget.x < position.x) position.x--;
+            else if (nearestTarget.x > position.x) position.x++;
+            
+            if (nearestTarget.y < position.y) position.y--;
+            else if (nearestTarget.y > position.y) position.y++;
         }
+    }
+    
+    // 找到最近的蛇身体部分
+    Point findNearestSnakeSegment(const std::vector<Point>& snake) const
+    {
+        if (snake.empty()) return {0, 0};
+        
+        Point nearest = snake[0];
+        float minDistance = FLT_MAX;
+        
+        for (const auto& segment : snake)
+        {
+            float dx = segment.x - position.x;
+            float dy = segment.y - position.y;
+            float distance = sqrt(dx * dx + dy * dy);
+            
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = segment;
+            }
+        }
+        
+        return nearest;
     }
     
     void takeDamage()
@@ -478,7 +505,7 @@ public:
         {
             if (enemy.isAlive())
             {
-                enemy.update(snake[0]);  // 敌人追踪蛇头
+                enemy.update(snake);  // 敌人追踪最近的蛇身体部分
             }
         }
 
