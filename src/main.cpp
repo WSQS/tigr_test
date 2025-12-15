@@ -1305,7 +1305,7 @@ bool SnakeGame::firstRun = true;
 
 int main(int argc, char *argv[])
 {
-    Tigr *screen = tigrWindow(640, 480, "贪吃蛇游戏", TIGR_AUTO);
+    Tigr *screen = tigrWindow(640, 480, "Snake Game", TIGR_AUTO);
     SnakeGame game(640, 480);
 
     float accumulator = 0.0f;
