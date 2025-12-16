@@ -252,6 +252,7 @@ private:
     int enemySpawnTimer;
     int enemySpawnInterval;
     int maxEnemies;
+    int minEnemies;  // 最少敌人数量限制
     int gameTimer;  // 游戏运行时间，用于难度递增
     
     // 蛇的生命系统
@@ -417,6 +418,25 @@ private:
         gameTimer++;
         enemySpawnTimer++;
         
+        // 计算当前存活的敌人数量
+        int aliveEnemies = 0;
+        for (const auto& enemy : enemies)
+        {
+            if (enemy.isAlive()) aliveEnemies++;
+        }
+        
+        // 动态计算最少敌人数量：基础数量 + 时间递增
+        int dynamicMinEnemies = minEnemies + (gameTimer / 600);  // 每分钟增加1个最少敌人
+        if (dynamicMinEnemies > maxEnemies - 2) dynamicMinEnemies = maxEnemies - 2;  // 最多不超过maxEnemies-2
+        
+        // 如果存活敌人少于动态最少数量，立即生成新敌人
+        if (aliveEnemies < dynamicMinEnemies)
+        {
+            spawnEnemy();
+            enemySpawnTimer = 0;
+            return;  // 本帧不再进行常规生成检查
+        }
+        
         // 随着时间推移，加快敌人生成速度
         int currentInterval = enemySpawnInterval - (gameTimer / 300);  // 每30秒加快一次生成（更快）
         if (currentInterval < 50) currentInterval = 50;  // 更小的最小生成间隔限制
@@ -498,6 +518,7 @@ public:
         enemySpawnTimer = 0;
         enemySpawnInterval = 150;  // 初始15秒生成一个新敌人（加快刷新频率）
         maxEnemies = 10;  // 增加最大敌人数量
+        minEnemies = 4;   // 最少保持4个敌人
         gameTimer = 0;
         
         // 初始化蛇的生命系统
