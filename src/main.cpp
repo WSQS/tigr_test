@@ -261,6 +261,11 @@ private:
     // AI模式控制
     bool aiMode;
     
+    // 日志缓冲区系统
+    std::vector<std::string> logBuffer;
+    static const int LOG_BUFFER_SIZE = 100;  // 缓冲区大小
+    int logCounter;  // 日志计数器，用于控制刷新频率
+    
     // 找到最近的敌人
     Enemy* findNearestEnemy()
     {
@@ -501,6 +506,10 @@ public:
         
         // 初始化AI模式
         aiMode = true;
+        
+        // 初始化日志缓冲区系统
+        logCounter = 0;
+        logBuffer.reserve(LOG_BUFFER_SIZE);  // 预分配内存
     }
     
     // AI模式控制
@@ -712,14 +721,34 @@ public:
         return predictedPos;
     }
     
-    // AI日志输出
+    // AI日志输出（使用缓冲区）
     void logAIDecision(const std::string& message)
     {
+        // 添加到缓冲区
+        logBuffer.push_back(message);
+        logCounter++;
+        
+        // 当缓冲区满了或每10条日志刷新一次
+        if (logBuffer.size() >= LOG_BUFFER_SIZE || logCounter % 10 == 0)
+        {
+            flushLogBuffer();
+        }
+    }
+    
+    // 刷新日志缓冲区到文件
+    void flushLogBuffer()
+    {
+        if (logBuffer.empty()) return;
+        
         FILE* logFile = fopen("ai_log.txt", "a");
         if (logFile)
         {
-            fprintf(logFile, "%s\n", message.c_str());
+            for (const auto& msg : logBuffer)
+            {
+                fprintf(logFile, "%s\n", msg.c_str());
+            }
             fclose(logFile);
+            logBuffer.clear();
         }
     }
     
@@ -1588,6 +1617,9 @@ int main(int argc, char *argv[])
 
         tigrUpdate(screen);
     }
+
+    // 游戏退出前刷新所有日志
+    game.flushLogBuffer();
 
     tigrFree(screen);
     return 0;
