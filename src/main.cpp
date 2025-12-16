@@ -323,6 +323,8 @@ private:
         
         // 检查食物
         for (const auto &food : foods)
+        // 检查食物
+        for (const auto &food : foods)
         {
             if (food.x == x && food.y == y) return true;
         }
@@ -749,6 +751,23 @@ public:
                 direction == UP ? "UP" : direction == DOWN ? "DOWN" : direction == LEFT ? "LEFT" : "RIGHT");
         logAIDecision(statusMsg);
         
+        // 找到最近的食物作为目标
+        Point targetFood = {-1, -1};  // 无效位置表示没有食物
+        if (!foods.empty())
+        {
+            targetFood = foods[0];
+            float minDistance = manhattanDistance(head, targetFood);
+            for (const auto& food : foods)
+            {
+                float dist = manhattanDistance(head, food);
+                if (dist < minDistance)
+                {
+                    minDistance = dist;
+                    targetFood = food;
+                }
+            }
+        }
+        
         // 记录敌人信息
         for (size_t i = 0; i < enemies.size(); i++)
         {
@@ -801,21 +820,43 @@ public:
                 int pathLength = 0;
                 
                 // 检查是否可以直接吃到食物（nextPos就是食物位置）
-                if (nextPos.x == food.x && nextPos.y == food.y) {
-                    canEatFood = true;
-                    pathLength = 0;  // 直接吃食物
-                    char directMsg[128];
-                    sprintf(directMsg, "  🎯 可以直接吃到食物! 位置(%d,%d)", nextPos.x, nextPos.y);
-                    logAIDecision(directMsg);
-                } else {
-                    // 否则寻找路径
-                    std::vector<Point> pathToFood = findPath(nextPos, food);
-                    if (!pathToFood.empty()) {
+                bool directFood = false;
+                for (const auto& food : foods) {
+                    if (nextPos.x == food.x && nextPos.y == food.y) {
                         canEatFood = true;
-                        pathLength = pathToFood.size();
-                        char pathMsg[128];
-                        sprintf(pathMsg, "  📍 找到食物路径! 长度:%d", pathLength);
-                        logAIDecision(pathMsg);
+                        pathLength = 0;  // 直接吃食物
+                        char directMsg[128];
+                        sprintf(directMsg, "  🎯 可以直接吃到食物! 位置(%d,%d)", nextPos.x, nextPos.y);
+                        logAIDecision(directMsg);
+                        directFood = true;
+                        break;
+                    }
+                }
+                
+                if (!directFood) {
+                    // 否则寻找路径到最近的食物
+                    Point targetFood = {-1, -1}; // 无效位置
+                    if (!foods.empty()) {
+                        targetFood = foods[0];
+                        float minDist = FLT_MAX;
+                        for (const auto& food : foods) {
+                            float dist = manhattanDistance(nextPos, food);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                targetFood = food;
+                            }
+                        }
+                    }
+                    
+                    if (targetFood.x >= 0) {
+                        std::vector<Point> pathToFood = findPath(nextPos, targetFood);
+                        if (!pathToFood.empty()) {
+                            canEatFood = true;
+                            pathLength = pathToFood.size();
+                            char pathMsg[128];
+                            sprintf(pathMsg, "  📍 找到食物路径! 长度:%d", pathLength);
+                            logAIDecision(pathMsg);
+                        }
                     }
                 }
                 
@@ -850,16 +891,16 @@ public:
                 else
                 {
                     // 详细检查为什么无法到达食物
-                    bool directToFood = isSafePosition(food, true);
+                    bool directToFood = isSafePosition(targetFood, true);
                     char debugMsg[256];
                     sprintf(debugMsg, "  ⚠️  无法到达食物 - 直接检查食物位置(%d,%d)安全性:%s", 
-                            food.x, food.y, directToFood ? "安全" : "不安全");
+                            targetFood.x, targetFood.y, directToFood ? "安全" : "不安全");
                     logAIDecision(debugMsg);
                     
                     // 检查食物位置是否与蛇身重叠
                     bool foodOnSnake = false;
                     for (const auto& segment : snake) {
-                        if (segment.x == food.x && segment.y == food.y) {
+                        if (segment.x == targetFood.x && segment.y == targetFood.y) {
                             foodOnSnake = true;
                             break;
                         }
@@ -923,7 +964,7 @@ public:
                 score -= totalThreat;
                 
                 // 4. 食物导向评分（更智能的策略）
-                int foodDist = manhattanDistance(nextPos, food);
+                int foodDist = manhattanDistance(nextPos, targetFood);
                 
                 // 根据蛇的长度调整策略，但整体增加权重
                 if (snake.size() <= 5)
@@ -1013,10 +1054,14 @@ public:
         else if (bestMove == LEFT) chosenPos.x--;
         else if (bestMove == RIGHT) chosenPos.x++;
         
-        if (chosenPos.x == food.x && chosenPos.y == food.y) {
-            char eatMsg[128];
-            sprintf(eatMsg, "🎯 AI选择了直接移动到食物位置!(%d,%d)", chosenPos.x, chosenPos.y);
-            logAIDecision(eatMsg);
+        // 检查是否选择了直接移动到某个食物位置
+        for (const auto& food : foods) {
+            if (chosenPos.x == food.x && chosenPos.y == food.y) {
+                char eatMsg[128];
+                sprintf(eatMsg, "🎯 AI选择了直接移动到食物位置!(%d,%d)", chosenPos.x, chosenPos.y);
+                logAIDecision(std::string(eatMsg));
+                break;
+            }
         }
         
         return bestMove;
@@ -1084,11 +1129,11 @@ public:
         // 更新无敌时间
         updateInvulnerability();
         
-        // AI模式：暂时禁用
-        // if (aiMode)
-        // {
-        //     direction = makeAIDecision();
-        // }
+        // AI模式：自动决策
+        if (aiMode)
+        {
+            direction = makeAIDecision();
+        }
 
         // 更新炮弹位置
         for (auto bullet = bullets.begin(); bullet != bullets.end();)
@@ -1372,6 +1417,8 @@ public:
             }
         }
 
+        // 绘制所有食物
+        for (const auto &food : foods)
         // 绘制所有食物
         for (const auto &food : foods)
         {
