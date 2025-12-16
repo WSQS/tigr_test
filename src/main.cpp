@@ -238,7 +238,7 @@ class SnakeGame
 {
 private:
     std::vector<Point> snake;
-    Point food;
+    std::vector<Point> foods;  // 支持多个食物
     Direction direction;
     int cellSize;
     int gridWidth, gridHeight;
@@ -322,7 +322,10 @@ private:
         }
         
         // 检查食物
-        if (food.x == x && food.y == y) return true;
+        for (const auto &food : foods)
+        {
+            if (food.x == x && food.y == y) return true;
+        }
         
         return false;
     }
@@ -741,8 +744,8 @@ public:
         
         // 记录当前状态
         char statusMsg[256];
-        sprintf(statusMsg, "\n=== AI决策开始 [%ld] === 蛇头:(%d,%d) 食物:(%d,%d) 蛇长:%zu 方向:%s", 
-                time(nullptr), head.x, head.y, food.x, food.y, snake.size(),
+        sprintf(statusMsg, "\n=== AI决策开始 [%ld] === 蛇头:(%d,%d) 食物数:%zu 蛇长:%zu 方向:%s", 
+                time(nullptr), head.x, head.y, foods.size(), snake.size(),
                 direction == UP ? "UP" : direction == DOWN ? "DOWN" : direction == LEFT ? "LEFT" : "RIGHT");
         logAIDecision(statusMsg);
         
@@ -1022,21 +1025,46 @@ public:
     void generateFood()
     {
         bool validPosition = false;
-        while (!validPosition)
+        int attempts = 0;
+        const int maxAttempts = 100;
+        
+        while (!validPosition && attempts < maxAttempts)
         {
-            food.x = std::rand() % gridWidth;
-            food.y = std::rand() % gridHeight;
+            Point newFood;
+            newFood.x = std::rand() % gridWidth;
+            newFood.y = std::rand() % gridHeight;
 
             validPosition = true;
             for (const auto &segment : snake)
             {
-                if (segment.x == food.x && segment.y == food.y)
+                if (segment.x == newFood.x && segment.y == newFood.y)
                 {
                     validPosition = false;
                     break;
                 }
             }
+            
+            for (const auto &food : foods)
+            {
+                if (food.x == newFood.x && food.y == newFood.y)
+                {
+                    validPosition = false;
+                    break;
+                }
+            }
+            
+            if (validPosition) {
+                foods.push_back(newFood);
+            }
+            
+            attempts++;
         }
+    }
+    
+    void generateFoodAt(int x, int y)
+    {
+        // 在指定位置生成食物（敌人死亡时使用）
+        foods.push_back({x, y});
     }
 
     void update()
@@ -1056,11 +1084,11 @@ public:
         // 更新无敌时间
         updateInvulnerability();
         
-        // AI模式：自动决策
-        if (aiMode)
-        {
-            direction = makeAIDecision();
-        }
+        // AI模式：暂时禁用
+        // if (aiMode)
+        // {
+        //     direction = makeAIDecision();
+        // }
 
         // 更新炮弹位置
         for (auto bullet = bullets.begin(); bullet != bullets.end();)
@@ -1099,6 +1127,9 @@ public:
                         if (!enemy.isAlive())
                         {
                             score += 5;  // 消灭敌人获得额外分数
+                            
+                            // 敌人死亡后掉落食物
+                            generateFoodAt(enemy.position.x, enemy.position.y);
                             
                             // 检查分裂特性（支持叠加）
                             int splitCount = std::count(enemy.traits.begin(), enemy.traits.end(), TRAIT_SPLIT);
@@ -1233,18 +1264,28 @@ public:
 
         // 调试信息
         char moveDebug[256];
-        sprintf(moveDebug, "DEBUG: 蛇头移动到(%d,%d) 食物在(%d,%d)", 
-                newHead.x, newHead.y, food.x, food.y);
+        sprintf(moveDebug, "DEBUG: 蛇头移动到(%d,%d) 食物数量:%zu", 
+                newHead.x, newHead.y, foods.size());
         logAIDecision(moveDebug);
         
-        // 检查是否吃到食物
-        if (newHead.x == food.x && newHead.y == food.y)
+        // 检查是否吃到任何食物
+        bool ateFood = false;
+        for (auto foodIt = foods.begin(); foodIt != foods.end();)
         {
-            logAIDecision("DEBUG: 🍽️ 吃到食物了!");
-            score++;
-            generateFood();
+            if (newHead.x == foodIt->x && newHead.y == foodIt->y)
+            {
+                logAIDecision("DEBUG: 🍽️ 吃到食物了!");
+                score++;
+                foodIt = foods.erase(foodIt);  // 移除被吃掉的食物
+                ateFood = true;
+            }
+            else
+            {
+                foodIt++;
+            }
         }
-        else
+        
+        if (!ateFood)
         {
             logAIDecision("DEBUG: 没吃到食物，移除尾部");
             // 如果没有吃到食物，移除尾部
@@ -1331,8 +1372,11 @@ public:
             }
         }
 
-        // 绘制食物
-        tigrFillRect(screen, offsetX + food.x * cellSize, offsetY + food.y * cellSize, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+        // 绘制所有食物
+        for (const auto &food : foods)
+        {
+            tigrFillRect(screen, offsetX + food.x * cellSize, offsetY + food.y * cellSize, cellSize, cellSize, tigrRGB(0xFF, 0x00, 0x00));
+        }
         
         // 绘制敌人
         for (const auto &enemy : enemies)
