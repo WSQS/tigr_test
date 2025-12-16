@@ -1168,6 +1168,12 @@ public:
         // 更新无敌时间
         updateInvulnerability();
         
+        // 确保至少存在一个食物（定期检查）
+        if (foods.empty())
+        {
+            generateFood();
+        }
+        
         // AI模式：自动决策
         if (aiMode)
         {
@@ -1367,6 +1373,12 @@ public:
             {
                 foodIt++;
             }
+        }
+        
+        // 确保至少存在一个食物
+        if (foods.empty())
+        {
+            generateFood();
         }
         
         if (!ateFood)
