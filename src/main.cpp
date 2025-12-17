@@ -261,6 +261,9 @@ private:
     // AI模式控制
     bool aiMode;
     
+    // 食物计数器系统
+    int foodCount;  // 吃到的食物总数
+    
     // 日志缓冲区系统
     std::vector<std::string> logBuffer;
     static const int LOG_BUFFER_SIZE = 100;  // 缓冲区大小
@@ -303,10 +306,9 @@ private:
             // 从蛇头发射炮弹
             bullets.push_back(Bullet(snake[0], target->position, 0.8f));
             
-            // 根据蛇的长度计算冷却时间：长度越长，冷却越短（攻击频率越高）
-            float cooldownReduction = (snake.size() - 3) * 0.5f;
-            int dynamicCooldown = 20 - static_cast<int>(cooldownReduction);
-            if (dynamicCooldown < 5) dynamicCooldown = 5;  // 最小冷却时间5帧
+            // 根据吃到的食物数量计算冷却时间：食物越多，冷却越短（攻击频率越高）
+            float attackSpeedBonus = (foodCount / 5) * 2.0f; // 每吃5个食物，冷却时间减少2帧
+            int dynamicCooldown = 20 - static_cast<int>(attackSpeedBonus);
             shootCooldown = dynamicCooldown;
         }
     }
@@ -516,6 +518,9 @@ public:
         
         // 初始化AI模式
         aiMode = true;
+        
+        // 初始化食物计数器系统
+        foodCount = 0;
         
         // 初始化日志缓冲区系统
         logCounter = 0;
@@ -1366,6 +1371,7 @@ public:
             {
                 logAIDecision("DEBUG: 🍽️ 吃到食物了!");
                 score++;
+                foodCount++;  // 增加食物计数
                 foodIt = foods.erase(foodIt);  // 移除被吃掉的食物
                 ateFood = true;
             }
@@ -1420,6 +1426,7 @@ public:
     }
 
     size_t getSnakeLength() const { return snake.size(); }
+    int getFoodCount() const { return foodCount; }
     
     void draw(Tigr *screen)
     {
@@ -1615,11 +1622,10 @@ int main(int argc, char *argv[])
         // 处理输入
         game.handleInput(screen);
 
-// 根据蛇的长度计算动态更新间隔（长度越长，移动越快）
-        float speedBonus = (game.getSnakeLength() - 3) * 0.005f; // 每增加1节长度，速度提升0.005秒
-        if (speedBonus > 0.08f) speedBonus = 0.08f; // 最大速度提升限制
-        float currentUpdateInterval = baseUpdateInterval - speedBonus;
-        if (currentUpdateInterval < 0.05f) currentUpdateInterval = 0.05f; // 最小更新间隔限制
+// 根据吃到的食物数量计算动态更新间隔（食物越多，移动越快）
+        float moveSpeedBonus = (game.getFoodCount() / 10) * 0.01f; // 每吃10个食物，速度提升0.01秒
+        float currentUpdateInterval = baseUpdateInterval - moveSpeedBonus;
+        if (currentUpdateInterval < 0.03f) currentUpdateInterval = 0.03f; // 最小更新间隔限制
 
         // 按动态间隔更新游戏状态
         if (accumulator >= currentUpdateInterval)
