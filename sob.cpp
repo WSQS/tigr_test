@@ -104,6 +104,12 @@ struct BulletTestSource
     static constexpr sopho::StaticString source{"tests/bullet_test.cpp"};
 };
 
+struct EnemyTestSource
+{
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"tests/enemy_test.cpp"};
+};
+
 struct AllTestsSource
 {
     using Dependent = std::tuple<>;
@@ -112,7 +118,7 @@ struct AllTestsSource
 
 struct AllTests
 {
-    using Dependent = std::tuple<SimpleTestSource, BulletTestSource, AllTestsSource>;
+    using Dependent = std::tuple<SimpleTestSource, BulletTestSource, EnemyTestSource, AllTestsSource>;
     static constexpr sopho::StaticString target{"all_tests"};
 };
 
