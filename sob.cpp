@@ -98,10 +98,22 @@ struct SimpleTestSource
     static constexpr sopho::StaticString source{"tests/simple_test.cpp"};
 };
 
-struct SimpleTest
+struct BulletTestSource
 {
-    using Dependent = std::tuple<SimpleTestSource>;
-    static constexpr sopho::StaticString target{"simple_test"};
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"tests/bullet_test.cpp"};
+};
+
+struct AllTestsSource
+{
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"tests/all_tests.cpp"};
+};
+
+struct AllTests
+{
+    using Dependent = std::tuple<SimpleTestSource, BulletTestSource, AllTestsSource>;
+    static constexpr sopho::StaticString target{"all_tests"};
 };
 
 #if defined(_MSC_VER)
@@ -119,6 +131,6 @@ int main()
 {
     sopho::CxxToolchain<SobCxxContext>::CxxBuilder<Sob>::build();
     sopho::CxxToolchain<TigrCxxContext>::CxxBuilder<Main>::build();
-    sopho::CxxToolchain<TestCxxContext>::CxxBuilder<SimpleTest>::build();
+    sopho::CxxToolchain<TestCxxContext>::CxxBuilder<AllTests>::build();
     return 0;
 }
