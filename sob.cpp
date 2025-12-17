@@ -71,12 +71,37 @@ struct Main
     static constexpr sopho::StaticString target{"main"};
 };
 
+// 测试构建配置
+struct TestGxxContext
+{
+    static constexpr std::string_view cxx{"g++"};
+    static constexpr sopho::StaticString obj_prefix{" -o "};
+    static constexpr sopho::StaticString obj_postfix{".o"};
+    static constexpr sopho::StaticString bin_prefix{" -o "};
+    static constexpr sopho::StaticString build_prefix{"build/tests/"};
+    static constexpr std::array<std::string_view, 2> cxxflags{"-std=c++17", "-Itests"};
+};
+
+struct SimpleTestSource
+{
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"tests/simple_test.cpp"};
+};
+
+struct SimpleTest
+{
+    using Dependent = std::tuple<SimpleTestSource>;
+    static constexpr sopho::StaticString target{"simple_test"};
+};
+
 #if defined(_MSC_VER)
     using SobCxxContext = SobClContext;
     using TigrCxxContext = TigrClContext;
+    using TestCxxContext = TestGxxContext;
 #elif defined(__GNUC__)
     using SobCxxContext = SobGxxContext;
     using TigrCxxContext = TigrGxxContext;
+    using TestCxxContext = TestGxxContext;
 #else
 #endif
 
@@ -84,5 +109,6 @@ int main()
 {
     sopho::CxxToolchain<SobCxxContext>::CxxBuilder<Sob>::build();
     sopho::CxxToolchain<TigrCxxContext>::CxxBuilder<Main>::build();
+    sopho::CxxToolchain<TestCxxContext>::CxxBuilder<SimpleTest>::build();
     return 0;
 }
