@@ -777,7 +777,7 @@ public:
             if (logFile)
             {
                 fprintf(logFile, "=== 贪吃蛇AI日志开始 ===\n");
-                fprintf(logFile, "游戏时间: %ld\n", time(nullptr));
+                fprintf(logFile, "游戏时间: %I64d\n", (long long)time(nullptr));
                 fclose(logFile);
             }
             firstRun = false;
@@ -785,8 +785,8 @@ public:
         
         // 记录当前状态
         char statusMsg[256];
-        sprintf(statusMsg, "\n=== AI决策开始 [%ld] === 蛇头:(%d,%d) 食物数:%zu 蛇长:%zu 方向:%s", 
-                time(nullptr), head.x, head.y, foods.size(), snake.size(),
+        sprintf(statusMsg, "\n=== AI决策开始 [%I64d] === 蛇头:(%d,%d) 食物数:%zu 蛇长:%zu 方向:%s", 
+                (long long)time(nullptr), head.x, head.y, foods.size(), snake.size(),
                 direction == UP ? "UP" : direction == DOWN ? "DOWN" : direction == LEFT ? "LEFT" : "RIGHT");
         logAIDecision(statusMsg);
         
