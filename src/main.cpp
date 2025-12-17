@@ -781,8 +781,8 @@ public:
             FILE* logFile = fopen("ai_log.txt", "w");
             if (logFile)
             {
-                fprintf(logFile, "=== 贪吃蛇AI日志开始 ===\n");
-                fprintf(logFile, "游戏时间: %I64d\n", (long long)time(nullptr));
+                fprintf(logFile, "=== Snake Game AI Log Start ===\n");
+                fprintf(logFile, "Game Time: %I64d\n", (long long)time(nullptr));
                 fclose(logFile);
             }
             firstRun = false;
@@ -790,7 +790,7 @@ public:
         
         // 记录当前状态
         char statusMsg[256];
-        sprintf(statusMsg, "\n=== AI决策开始 [%I64d] === 蛇头:(%d,%d) 食物数:%zu 蛇长:%zu 方向:%s", 
+        sprintf(statusMsg, "\n=== AI Decision Start [%I64d] === Head:(%d,%d) Foods:%zu Length:%zu Dir:%s", 
                 (long long)time(nullptr), head.x, head.y, foods.size(), snake.size(),
                 direction == UP ? "UP" : direction == DOWN ? "DOWN" : direction == LEFT ? "LEFT" : "RIGHT");
         logAIDecision(statusMsg);
@@ -818,7 +818,7 @@ public:
             if (enemies[i].isAlive())
             {
                 char enemyMsg[128];
-                sprintf(enemyMsg, "敌人%zu: 位置(%d,%d) 血量:%d 速度:%.1f", 
+                sprintf(enemyMsg, "Enemy%zu: Pos(%d,%d) HP:%d Speed:%.1f", 
                         i, enemies[i].position.x, enemies[i].position.y, 
                         enemies[i].currentHealth, enemies[i].speed);
                 logAIDecision(enemyMsg);
@@ -846,18 +846,18 @@ public:
                                  move.first == LEFT ? "LEFT" : "RIGHT";
             
             char moveMsg[128];
-            sprintf(moveMsg, "--- 评估方向: %s 到位置(%d,%d) ---", dirName, nextPos.x, nextPos.y);
+            sprintf(moveMsg, "--- Evaluating Direction: %s to Pos(%d,%d) ---", dirName, nextPos.x, nextPos.y);
             logAIDecision(moveMsg);
             
             // 基础安全性检查
             if (!isSafePosition(nextPos))
             {
                 score -= 1000.0f; // 大幅惩罚不安全的位置
-                logAIDecision("  ❌ 位置不安全! -1000分");
+                logAIDecision("  X Unsafe position! -1000 score");
             }
             else
             {
-                logAIDecision("  ✅ 位置安全");
+                logAIDecision("  + Position is safe");
                 
                 // 1. 路径可达性评估 - 是否能到达食物
                 bool canEatFood = false;
@@ -870,7 +870,7 @@ public:
                         canEatFood = true;
                         pathLength = 0;  // 直接吃食物
                         char directMsg[128];
-                        sprintf(directMsg, "  🎯 可以直接吃到食物! 位置(%d,%d)", nextPos.x, nextPos.y);
+                        sprintf(directMsg, "  >> Can eat food directly! Pos(%d,%d)", nextPos.x, nextPos.y);
                         logAIDecision(directMsg);
                         directFood = true;
                         break;
@@ -898,7 +898,7 @@ public:
                             canEatFood = true;
                             pathLength = pathToFood.size();
                             char pathMsg[128];
-                            sprintf(pathMsg, "  📍 找到食物路径! 长度:%d", pathLength);
+                            sprintf(pathMsg, "  * Found path to food! Length:%d", pathLength);
                             logAIDecision(pathMsg);
                         }
                     }
@@ -914,20 +914,20 @@ public:
                         // 直接吃食物，给予最高奖励
                         score += 1000.0f;
                         char bonusMsg[128];
-                        sprintf(bonusMsg, "  🏆 直接吃食物! 超级奖励:1000.0");
+                        sprintf(bonusMsg, "  *** Direct food eat! Super bonus:1000.0");
                         logAIDecision(bonusMsg);
                     } else {
                         // 需要移动，路径越短得分越高
                         score += (200.0f / pathLength); // 增加权重
                         char pathScoreMsg[128];
-                        sprintf(pathScoreMsg, "  📍 路径长度奖励:%.1f", 200.0f / pathLength);
+                        sprintf(pathScoreMsg, "  * Path length bonus:%.1f", 200.0f / pathLength);
                         logAIDecision(pathScoreMsg);
                         
                         // 额外奖励：如果下一步就能吃到食物
                         if (pathLength == 1) {
                             score += 500.0f;
                             char bonusMsg[128];
-                            sprintf(bonusMsg, "  🎯 下一步就能吃到食物! 额外奖励:500.0");
+                            sprintf(bonusMsg, "  >> Next step eats food! Extra bonus:500.0");
                             logAIDecision(bonusMsg);
                         }
                     }
@@ -937,8 +937,8 @@ public:
                     // 详细检查为什么无法到达食物
                     bool directToFood = isSafePosition(targetFood, true);
                     char debugMsg[256];
-                    sprintf(debugMsg, "  ⚠️  无法到达食物 - 直接检查食物位置(%d,%d)安全性:%s", 
-                            targetFood.x, targetFood.y, directToFood ? "安全" : "不安全");
+                    sprintf(debugMsg, "  ! Cannot reach food - Check food pos(%d,%d) safety:%s", 
+                            targetFood.x, targetFood.y, directToFood ? "safe" : "unsafe");
                     logAIDecision(debugMsg);
                     
                     // 检查食物位置是否与蛇身重叠
@@ -950,7 +950,7 @@ public:
                         }
                     }
                     if (foodOnSnake) {
-                        logAIDecision("    原因：食物位置与蛇身重叠");
+                        logAIDecision("    Reason: Food overlaps with snake body");
                     }
                 }
                 
@@ -959,7 +959,7 @@ public:
                 score += accessibleArea * 0.5f; // 降低权重，避免过度保守
                 
                 char areaMsg[128];
-                sprintf(areaMsg, "  🗺️  可达区域大小:%d 得分:%.1f", accessibleArea, accessibleArea * 0.5f);
+                sprintf(areaMsg, "  # Accessible area:%d score:%.1f", accessibleArea, accessibleArea * 0.5f);
                 logAIDecision(areaMsg);
                 
                 // 3. 敌人威胁评估（更精确的预测）
@@ -997,13 +997,13 @@ public:
                     totalThreat += enemyThreat;
                     
                     char threatMsg[256];
-                    sprintf(threatMsg, "    👹 敌人(%d,%d) 当前距离:%.1f 预测距离:%.1f 威胁值:%.1f", 
+                    sprintf(threatMsg, "    @ Enemy(%d,%d) CurrDist:%.1f PredDist:%.1f Threat:%.1f", 
                             enemy.position.x, enemy.position.y, currentDist, futureDist, enemyThreat);
                     logAIDecision(threatMsg);
                 }
                 
                 char totalThreatMsg[128];
-                sprintf(totalThreatMsg, "  ⚠️  总威胁值:%.1f 扣分:%.1f", totalThreat, -totalThreat);
+                sprintf(totalThreatMsg, "  ! Total threat:%.1f penalty:%.1f", totalThreat, -totalThreat);
                 logAIDecision(totalThreatMsg);
                 score -= totalThreat;
                 
@@ -1070,7 +1070,7 @@ public:
             }
             
             char finalScoreMsg[128];
-            sprintf(finalScoreMsg, "  📊 最终得分:%.1f", score);
+            sprintf(finalScoreMsg, "  = Final score:%.1f", score);
             logAIDecision(finalScoreMsg);
             
             // 选择得分最高的移动
@@ -1080,7 +1080,7 @@ public:
                 bestMove = move.first;
                 
                 char bestMsg[128];
-                sprintf(bestMsg, "  🏆 新的最佳选择! %s 得分:%.1f", dirName, score);
+                sprintf(bestMsg, "  *** New best choice! %s score:%.1f", dirName, score);
                 logAIDecision(bestMsg);
             }
         }
@@ -1088,7 +1088,7 @@ public:
         const char* finalDirName = bestMove == UP ? "UP" : bestMove == DOWN ? "DOWN" : 
                                    bestMove == LEFT ? "LEFT" : "RIGHT";
         char finalDecision[256];
-        sprintf(finalDecision, "=== AI决策完成 === 选择:%s 得分:%.1f ===", finalDirName, bestScore);
+        sprintf(finalDecision, "=== AI Decision Complete === Choice:%s Score:%.1f ===", finalDirName, bestScore);
         logAIDecision(finalDecision);
         
         // 额外调试：检查选择的移动是否直接到食物
@@ -1102,7 +1102,7 @@ public:
         for (const auto& food : foods) {
             if (chosenPos.x == food.x && chosenPos.y == food.y) {
                 char eatMsg[128];
-                sprintf(eatMsg, "🎯 AI选择了直接移动到食物位置!(%d,%d)", chosenPos.x, chosenPos.y);
+                sprintf(eatMsg, ">> AI chose to move directly to food position!(%d,%d)", chosenPos.x, chosenPos.y);
                 logAIDecision(std::string(eatMsg));
                 break;
             }
@@ -1374,7 +1374,7 @@ public:
 
         // 调试信息
         char moveDebug[256];
-        sprintf(moveDebug, "DEBUG: 蛇头移动到(%d,%d) 食物数量:%zu", 
+        sprintf(moveDebug, "DEBUG: Snake head moved to(%d,%d) Foods:%zu", 
                 newHead.x, newHead.y, foods.size());
         logAIDecision(moveDebug);
         
@@ -1384,7 +1384,7 @@ public:
         {
             if (newHead.x == foodIt->x && newHead.y == foodIt->y)
             {
-                logAIDecision("DEBUG: 🍽️ 吃到食物了!");
+                logAIDecision("DEBUG: Ate food!");
                 score++;
                 foodCount++;  // 增加食物计数
                 foodIt = foods.erase(foodIt);  // 移除被吃掉的食物
@@ -1404,7 +1404,7 @@ public:
         
         if (!ateFood)
         {
-            logAIDecision("DEBUG: 没吃到食物，移除尾部");
+            logAIDecision("DEBUG: No food eaten, remove tail");
             // 如果没有吃到食物，移除尾部
             snake.pop_back();
         }
