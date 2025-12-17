@@ -18,6 +18,14 @@ int main()
     test_bullet_lifetime();
     std::cout << std::endl;
     
+    std::cout << "--- Enemy Class Tests ---" << std::endl;
+    test_enemy_construction();
+    test_enemy_traits();
+    test_enemy_movement();
+    test_enemy_damage_and_knockback();
+    test_enemy_find_nearest_target();
+    std::cout << std::endl;
+    
     std::cout << "========================================" << std::endl;
     std::cout << "       All Tests Completed              " << std::endl;
     std::cout << "========================================" << std::endl;

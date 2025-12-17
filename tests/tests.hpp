@@ -9,4 +9,11 @@ void test_bullet_construction();
 void test_bullet_update();
 void test_bullet_lifetime();
 
+// Enemy类测试
+void test_enemy_construction();
+void test_enemy_traits();
+void test_enemy_movement();
+void test_enemy_damage_and_knockback();
+void test_enemy_find_nearest_target();
+
 #endif // TESTS_HPP
