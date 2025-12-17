@@ -1625,7 +1625,6 @@ int main(int argc, char *argv[])
 // 根据吃到的食物数量计算动态更新间隔（食物越多，移动越快）
         float moveSpeedBonus = (game.getFoodCount() / 10) * 0.01f; // 每吃10个食物，速度提升0.01秒
         float currentUpdateInterval = baseUpdateInterval - moveSpeedBonus;
-        if (currentUpdateInterval < 0.03f) currentUpdateInterval = 0.03f; // 最小更新间隔限制
 
         // 按动态间隔更新游戏状态
         if (accumulator >= currentUpdateInterval)
