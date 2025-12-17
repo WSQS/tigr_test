@@ -1630,6 +1630,12 @@ int main(int argc, char *argv[])
 
     while (!tigrClosed(screen))
     {
+        // 检查游戏是否结束，如果结束则自动退出
+        if (game.isGameOver())
+        {
+            break;
+        }
+
         // tigrTime() 返回自上次调用以来的时间间隔
         float deltaTime = tigrTime();
         accumulator += deltaTime;
