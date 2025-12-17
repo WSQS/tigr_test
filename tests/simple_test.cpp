@@ -1,8 +1,8 @@
 #include "test_framework.hpp"
-#include <iostream>
+#include "tests.hpp"
 
-// 简单的测试函数
-void test_basic_functionality() {
+void test_basic_functionality()
+{
     TestFramework framework;
     
     framework.run_test("Basic Math Test", [&]() {
@@ -16,10 +16,4 @@ void test_basic_functionality() {
     });
     
     framework.print_summary();
-}
-
-int main() {
-    std::cout << "=== Running Simple Test ===" << std::endl;
-    test_basic_functionality();
-    return 0;
 }
