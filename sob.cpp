@@ -72,6 +72,16 @@ struct Main
 };
 
 // 测试构建配置
+struct TestClContext
+{
+    static constexpr std::string_view cxx{"cl"};
+    static constexpr sopho::StaticString obj_prefix{" /Fo:"};
+    static constexpr sopho::StaticString obj_postfix{".obj"};
+    static constexpr sopho::StaticString bin_prefix{" /Fe:"};
+    static constexpr sopho::StaticString build_prefix{"build/tests/"};
+    static constexpr std::array<std::string_view, 3> cxxflags{"/std:c++17", "/Itests", "/utf-8"};
+};
+
 struct TestGxxContext
 {
     static constexpr std::string_view cxx{"g++"};
@@ -97,7 +107,7 @@ struct SimpleTest
 #if defined(_MSC_VER)
     using SobCxxContext = SobClContext;
     using TigrCxxContext = TigrClContext;
-    using TestCxxContext = TestGxxContext;
+    using TestCxxContext = TestClContext;
 #elif defined(__GNUC__)
     using SobCxxContext = SobGxxContext;
     using TigrCxxContext = TigrGxxContext;
