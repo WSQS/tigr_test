@@ -1303,53 +1303,68 @@ public:
         }
 
         // 检查墙壁碰撞
+        bool shouldMove = true;
         if (newHead.x < 0 || newHead.x >= gridWidth ||
             newHead.y < 0 || newHead.y >= gridHeight)
         {
             takeDamage();
             if (gameOver) return;
             
-            // 如果没有死亡，不移动到新位置
-            return;
+            // 如果没有死亡，不移动到新位置，保持原位
+            shouldMove = false;
+            newHead = snake[0];  // 恢复为当前头部位置
         }
 
         // 检查自身碰撞
-        for (const auto &segment : snake)
+        if (shouldMove)
         {
-            if (newHead.x == segment.x && newHead.y == segment.y)
+            for (const auto &segment : snake)
             {
-                takeDamage();
-                if (gameOver) return;
-                
-                // 如果没有死亡，不移动到新位置
-                return;
+                if (newHead.x == segment.x && newHead.y == segment.y)
+                {
+                    takeDamage();
+                    if (gameOver) return;
+                    
+                    // 如果没有死亡，不移动到新位置，保持原位
+                    shouldMove = false;
+                    newHead = snake[0];  // 恢复为当前头部位置
+                    break;
+                }
             }
         }
 
         // 检查与敌人的碰撞
+        if (shouldMove)
+        {
+            for (const auto &enemy : enemies)
+            {
+                if (!enemy.isAlive()) continue;
+                
+                if (newHead.x == enemy.position.x && newHead.y == enemy.position.y)
+                {
+                    takeDamage();
+                    if (gameOver) return;
+                    
+                    // 如果没有死亡，不移动到新位置，保持原位
+                    shouldMove = false;
+                    newHead = snake[0];  // 恢复为当前头部位置
+                    break;
+                }
+            }
+        }
+        
+        // 检查敌人是否碰到蛇身
         for (const auto &enemy : enemies)
         {
             if (!enemy.isAlive()) continue;
             
-            if (newHead.x == enemy.position.x && newHead.y == enemy.position.y)
-            {
-                takeDamage();
-                if (gameOver) return;
-                
-                // 如果没有死亡，不移动到新位置
-                return;
-            }
-            
-            // 检查敌人是否碰到蛇身
             for (const auto &segment : snake)
             {
                 if (segment.x == enemy.position.x && segment.y == enemy.position.y)
                 {
                     takeDamage();
                     if (gameOver) return;
-                    
-                    // 如果没有死亡，不移动到新位置
-                    return;
+                    break;
                 }
             }
         }
