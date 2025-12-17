@@ -34,6 +34,7 @@ tigr_t/
 │   ├── tests.hpp          # 测试函数声明
 │   ├── simple_test.cpp    # 基础功能测试模块
 │   ├── bullet_test.cpp    # Bullet类测试模块
+│   ├── enemy_test.cpp     # Enemy类测试模块
 │   └── all_tests.cpp      # 统一测试入口(main函数)
 ├── thirdparty/tigr/       # TIGR图形库
 │   ├── include/tigr.h     # 图形库头文件
@@ -44,6 +45,7 @@ tigr_t/
 │   ├── tests/             # 测试目标文件目录
 │   │   ├── simple_test.o
 │   │   ├── bullet_test.o
+│   │   ├── enemy_test.o
 │   │   └── all_tests.o
 │   └── thirdparty/tigr/src/ti.o # TIGR库目标文件
 ├── sob.cpp                # 构建系统配置
@@ -94,13 +96,18 @@ tigr_t/
 - 测试直接使用`src/game_types.hpp`中的实际代码
 
 ### 当前测试状态
-- **总测试数**: 12个 (100%通过)
+- **总测试数**: 28个 (100%通过)
 - **测试模块**:
   - `simple_test.cpp`: 基础功能测试 (2个)
   - `bullet_test.cpp`: Bullet类测试 (10个)
     - 构造函数和方向计算 (5个)
     - 位置更新和生命值 (3个)
     - 生命周期管理 (2个)
+  - `enemy_test.cpp`: Enemy类测试 (16个)
+    - 构造函数和特性系统 (6个)
+    - 移动逻辑和追踪 (3个)
+    - 伤害和击退机制 (5个)
+    - 目标寻找算法 (2个)
 
 ### 运行测试
 ```bash
@@ -119,9 +126,13 @@ tigr_t/
 # --- Bullet Class Tests ---
 # [PASS] Bullet Basic Construction (0.001704ms)
 # [PASS] Bullet Direction Calculation - Horizontal (0.000341ms)
+# 
+# --- Enemy Class Tests ---
+# [PASS] Enemy Basic Construction (0.004218ms)
+# [PASS] Speed Boost Trait (0.000961ms)
 # ...
-# Total tests: 12
-# Passed: 12
+# Total tests: 28
+# Passed: 28
 # Success rate: 100%
 ```
 
@@ -215,13 +226,20 @@ tigr_t/
   - 生存时间管理
   - 碰撞检测
   - **可独立测试**
+- `Enemy`: 敌人类
+  - 特性系统(速度、血量、击退抗性、分裂、巨大化)
+  - AI追踪行为
+  - 伤害和击退机制
+  - **可独立测试**
 
 **游戏类** (定义在`main.cpp`):
-- `Enemy`: 敌人类
-  - 特性系统(速度、血量、击退抗性等)
-  - AI追踪行为
-  - 击退和分裂机制
 - `SnakeGame`: 主游戏类(核心)
+  - 蛇的移动和成长逻辑
+  - 食物生成和碰撞检测
+  - 战斗系统(炮弹发射和命中)
+  - BFS寻路AI系统
+  - 敌人生成和管理
+  - 游戏状态和难度控制
   - 蛇的移动和成长逻辑
   - 食物生成和碰撞检测
   - 战斗系统(炮弹发射和命中)
@@ -320,19 +338,18 @@ tigr_t/
 - **已修改未提交**: 多个文件待提交
 
 ### 🔄 下一步建议
-1. 提交当前更改(代码重构和测试架构)
-2. 配置.gitignore排除构建产物
-3. 清理旧文件和可执行文件
-4. 为Enemy类添加单元测试
-5. 考虑提取Enemy类到game_types.hpp
-6. 性能优化和功能扩展
+1. 为SnakeGame核心逻辑添加测试
+2. 考虑提取更多可测试组件
+3. 性能优化和功能扩展
+4. 集成旧测试套件(run_tests)
+5. 添加更多游戏机制测试
 
 ### 📊 代码质量
 - **代码规模**: main.cpp + game_types.hpp
-- **测试覆盖**: 12个测试，100%通过
-  - Bullet类: 完整覆盖
-  - 基础功能: 已测试
-  - Enemy类: 待添加测试
+- **测试覆盖**: 28个测试，100%通过
+  - Bullet类: 完整覆盖 (10个测试)
+  - Enemy类: 完整覆盖 (16个测试)
+  - 基础功能: 已测试 (2个测试)
 - **构建状态**: 所有目标正常编译
 - **可执行文件**: main, all_tests, sob
 
