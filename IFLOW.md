@@ -27,24 +27,31 @@
 ```
 tigr_t/
 ├── src/
-│   └── main.cpp           # 主程序入口(1673行，包含完整游戏实现)
+│   ├── game_types.hpp     # 游戏类型定义(Point, Direction, Bullet等)
+│   └── main.cpp           # 主程序入口(包含SnakeGame和Enemy类)
 ├── tests/
 │   ├── test_framework.hpp # 轻量级测试框架
-│   └── simple_test.cpp    # 简单测试用例
+│   ├── tests.hpp          # 测试函数声明
+│   ├── simple_test.cpp    # 基础功能测试模块
+│   ├── bullet_test.cpp    # Bullet类测试模块
+│   └── all_tests.cpp      # 统一测试入口(main函数)
 ├── thirdparty/tigr/       # TIGR图形库
 │   ├── include/tigr.h     # 图形库头文件
 │   └── src/tigr.c         # 图形库实现
 ├── build/                 # 构建输出目录
 │   ├── sob.o              # SOB构建系统目标文件
 │   ├── src/main.o         # 主程序目标文件
-│   ├── tests/simple_test.o # 测试目标文件
+│   ├── tests/             # 测试目标文件目录
+│   │   ├── simple_test.o
+│   │   ├── bullet_test.o
+│   │   └── all_tests.o
 │   └── thirdparty/tigr/src/ti.o # TIGR库目标文件
 ├── sob.cpp                # 构建系统配置
 ├── sob.hpp                # 构建系统实现(模板元编程)
-├── main                   # 主游戏可执行文件(247KB)
-├── simple_test            # 测试可执行文件(74KB)
+├── main                   # 主游戏可执行文件
+├── all_tests              # 统一测试可执行文件
 ├── sob                    # 构建系统可执行文件
-├── run_tests              # 旧测试套件(325KB，待整合)
+├── run_tests              # 旧测试套件(待整合)
 ├── ai_log.txt             # AI决策日志文件(运行时生成)
 ├── IFLOW.md               # 项目文档(本文件)
 └── README.md              # 项目说明(未追踪)
@@ -59,8 +66,8 @@ tigr_t/
 
 # 构建结果：
 # - sob: 构建系统本身(自举)
-# - main: 主游戏程序(247KB)
-# - simple_test: 简单测试套件(74KB)
+# - main: 主游戏程序
+# - all_tests: 统一测试套件(包含所有测试模块)
 ```
 
 ### 运行游戏
@@ -68,11 +75,8 @@ tigr_t/
 # 运行主游戏
 ./main
 
-# 运行简单测试
-./simple_test
-
-# 运行旧测试套件(未集成到SOB)
-./run_tests
+# 运行所有测试
+./all_tests
 ```
 
 ### 游戏控制
@@ -82,39 +86,51 @@ tigr_t/
 
 ## 测试系统
 
+### 测试架构
+采用**模块化测试架构**：
+- 一个可执行文件(`all_tests`)包含所有测试
+- 测试代码分布在多个模块文件中
+- 每个模块测试独立的功能单元
+- 测试直接使用`src/game_types.hpp`中的实际代码
+
 ### 当前测试状态
-- **已集成测试**: simple_test (2个测试，100%通过)
-  - Basic Math Test
-  - Basic Logic Test
-- **旧测试套件**: run_tests (未集成到SOB构建系统)
-  - 包含18个测试用例
-  - 上次运行通过率: 83.33% (15/18)
-  - 需要决定是否重构并集成
+- **总测试数**: 12个 (100%通过)
+- **测试模块**:
+  - `simple_test.cpp`: 基础功能测试 (2个)
+  - `bullet_test.cpp`: Bullet类测试 (10个)
+    - 构造函数和方向计算 (5个)
+    - 位置更新和生命值 (3个)
+    - 生命周期管理 (2个)
 
 ### 运行测试
 ```bash
-# 编译并运行集成测试
-./sob && ./simple_test
+# 编译并运行所有测试
+./sob && ./all_tests
 
-# 测试输出：
-# === Running Simple Test ===
-# [PASS] Basic Math Test (0.000922ms)
-# [PASS] Basic Logic Test (0.000311ms)
-# === Test Summary ===
-# Total tests: 2
-# Passed: 2
-# Failed: 0
+# 测试输出示例：
+# ========================================
+#        Running All Unit Tests          
+# ========================================
+# 
+# --- Basic Functionality Tests ---
+# [PASS] Basic Math Test (0.000782ms)
+# [PASS] Basic Logic Test (0.000251ms)
+# 
+# --- Bullet Class Tests ---
+# [PASS] Bullet Basic Construction (0.001704ms)
+# [PASS] Bullet Direction Calculation - Horizontal (0.000341ms)
+# ...
+# Total tests: 12
+# Passed: 12
 # Success rate: 100%
-
-# 运行旧测试套件(独立可执行文件)
-./run_tests
 ```
 
 ### 测试框架特性
 - 轻量级断言宏(TEST_ASSERT, TEST_ASSERT_EQ)
 - 自动性能计时
-- 彩色输出支持
-- 简洁的测试报告
+- 模块化测试组织
+- 统一测试入口
+- 测试实际代码(无代码复制)
 
 ## 开发约定
 
@@ -134,8 +150,8 @@ tigr_t/
    - 添加新功能时先编写测试用例
    - 修复bug时先写复现测试
    - 每次修改后运行测试套件验证
-   - 使用`./sob && ./simple_test`快速验证
-   - 重大修改后运行完整测试(包括run_tests)
+   - 使用`./sob && ./all_tests`快速验证
+   - 测试应该测试实际代码，不复制代码
 
 3. **代码整洁 (Clean Code)**
    - 提交前检查编译警告和错误
@@ -161,7 +177,7 @@ tigr_t/
    # 2. 编译验证
    ./sob
    # 3. 运行测试
-   ./simple_test
+   ./all_tests
    # 4. 检查状态
    git status
    git diff
@@ -178,8 +194,12 @@ tigr_t/
 - 详细的中文注释说明复杂逻辑
 
 ### 核心类设计
-**注**: 所有游戏类都在`src/main.cpp`单文件中实现(1673行)
 
+**代码组织**:
+- `src/game_types.hpp`: 可测试的基础类型和类定义
+- `src/main.cpp`: 主游戏逻辑和复杂类实现
+
+**基础类型** (定义在`game_types.hpp`):
 - `Point`: 简单的坐标点结构(x, y)
 - `Direction`: 方向枚举(UP, DOWN, LEFT, RIGHT)
 - `EnemyTrait`: 敌人特性枚举(5种特性)
@@ -187,6 +207,9 @@ tigr_t/
   - 浮点数位置和方向
   - 生存时间管理
   - 碰撞检测
+  - **可独立测试**
+
+**游戏类** (定义在`main.cpp`):
 - `Enemy`: 敌人类
   - 特性系统(速度、血量、击退抗性等)
   - AI追踪行为
@@ -271,32 +294,39 @@ tigr_t/
 ## 项目状态
 
 ### ✅ 已完成
-- 核心游戏实现(1673行C++代码)
-- SOB构建系统完全配置(支持3个目标)
-- 基础测试框架集成(simple_test, 2/2通过)
+- 核心游戏实现(main.cpp + game_types.hpp)
+- SOB构建系统完全配置(支持3个目标: sob, main, all_tests)
+- 模块化测试架构(all_tests, 12/12通过, 100%)
+  - 测试框架完整
+  - 测试实际代码(无代码复制)
+  - 模块化组织(simple_test, bullet_test)
 - 跨平台编译支持(MSVC/GCC)
+- 代码重构(提取game_types.hpp提高可测试性)
 - AI日志系统(英文输出)
 - 游戏结束自动退出功能
 
 ### ⚠️ 待处理
-- **测试系统**: run_tests(18个测试)未集成到SOB构建
 - **文件清理**: 
   - 未追踪文件: README.md, ai_log.txt, build/, tests/, 可执行文件
-  - 旧可执行文件: snake(可能是旧版本)
+  - 旧可执行文件: snake, run_tests, simple_test, bullet_test
   - 需要配置.gitignore
-- **已修改未提交**: IFLOW.md, sob.cpp
+- **已修改未提交**: 多个文件待提交
 
 ### 🔄 下一步建议
-1. 决定run_tests的处理方式(重构/集成/废弃)
+1. 提交当前更改(代码重构和测试架构)
 2. 配置.gitignore排除构建产物
 3. 清理旧文件和可执行文件
-4. 提交当前更改
-5. 考虑性能优化和功能扩展
+4. 为Enemy类添加单元测试
+5. 考虑提取Enemy类到game_types.hpp
+6. 性能优化和功能扩展
 
 ### 📊 代码质量
-- **代码规模**: 1673行(单文件实现)
-- **测试覆盖**: 基础测试100%通过
+- **代码规模**: main.cpp + game_types.hpp
+- **测试覆盖**: 12个测试，100%通过
+  - Bullet类: 完整覆盖
+  - 基础功能: 已测试
+  - Enemy类: 待添加测试
 - **构建状态**: 所有目标正常编译
-- **可执行文件**: main(247KB), simple_test(74KB), run_tests(325KB)
+- **可执行文件**: main, all_tests, sob
 
 这个项目展示了现代C++游戏开发的完整流程，包括架构设计、AI算法、模板元编程构建系统和测试驱动开发，是学习现代软件工程实践的优秀实例。
