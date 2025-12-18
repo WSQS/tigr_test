@@ -12,7 +12,10 @@ This is an enhanced snake game developed based on the TIGR (TIny GRaphics Librar
 - **Intelligent AI Mode**: BFS pathfinding algorithm, threat assessment, automatic decision-making
 - **Dynamic Difficulty**: Increasing enemy spawning and trait complexity over time
 - **Detailed Logging System**: AI decision-making process recording and analysis
-- **Complete Test Suite**: 18 test cases ensuring code quality
+- **Complete Test Suite**: 40 test cases ensuring code quality (100% pass rate)
+- **International Codebase**: Fully English comments and documentation
+- **Optimized Performance**: Eliminated code redundancy and improved memory efficiency
+- **Modular Architecture**: Clean separation of concerns with reusable utility functions
 
 ## Technical Architecture
 
@@ -96,9 +99,10 @@ Uses a **modular test architecture**:
 - Tests directly use actual code from `src/game_types.hpp`
 
 ### Current Test Status
-- **Total Tests**: 28 (100% passing)
+- **Total Tests**: 40 (100% passing)
 - **Test Modules**:
   - `simple_test.cpp`: Basic functionality tests (2)
+    - Mathematical operations and logical testing
   - `bullet_test.cpp`: Bullet class tests (10)
     - Constructor and direction calculation (5)
     - Position update and lifetime (3)
@@ -108,6 +112,9 @@ Uses a **modular test architecture**:
     - Movement logic and tracking (3)
     - Damage and knockback mechanics (5)
     - Target finding algorithm (2)
+  - `game_utils_test.cpp`: Utility function tests (12)
+    - Distance calculations (8)
+    - Direction offset operations (4)
 
 ### Running Tests
 ```bash
@@ -142,6 +149,13 @@ Uses a **modular test architecture**:
 - Modular test organization
 - Unified test entry point
 - Tests actual code (no code duplication)
+
+### Code Optimization Achievements
+- **Redundancy Elimination**: Removed duplicate code blocks and array definitions
+- **Memory Efficiency**: Implemented static constants for shared data structures
+- **Performance Optimization**: Optimized direction array usage with static member references
+- **Clean Code Principles**: Applied DRY principle and eliminated code duplication
+- **Maintainability**: Improved code structure for easier future development
 
 ## Development Conventions
 
@@ -190,20 +204,26 @@ Uses a **modular test architecture**:
    - Example: Add new test file → Update test system chapter
 
 5. **Change Verification Process**
-   ```bash
-   # 1. Modify code
-   # 2. Compile verification
-   ./sob
-   # 3. Run tests
-   ./all_tests
-   # 4. Check status
-   git status
-   git diff
-   # 5. Atomic commit
-   git add <specific-files>
-   git commit -m "Clear, concise message"
-   ```
+    ```bash
+    # 1. Modify code
+    # 2. Compile verification
+    ./sob
+    # 3. Run tests
+    ./all_tests
+    # 4. Check status
+    git status
+    git diff
+    # 5. Atomic commit
+    git add <specific-files>
+    git commit -m "Clear, concise message"
+    ```
 
+6. **Internationalization Standards**
+   - All code comments must be in English
+   - All documentation must be in English
+   - User-facing messages should be in English
+   - Maintain consistent terminology across all files
+   - Use clear, concise English for technical descriptions
 ### Code Style
 - Use C++17 standard features
 - Class names use PascalCase
@@ -315,10 +335,18 @@ Uses a **modular test architecture**:
 ### ✅ Completed
 - Core game implementation (main.cpp + game_types.hpp)
 - SOB build system fully configured (supports 3 targets: sob, main, all_tests)
-- Modular test architecture (all_tests, 12/12 passing, 100%)
-  - Complete test framework
+- Complete English localization across all project files
+  - All Chinese comments converted to English
+  - Documentation fully translated
+  - Consistent English-only codebase
+- Modular test architecture (all_tests, 40/40 passing, 100%)
+  - Complete test framework with performance timing
   - Tests actual code (no code duplication)
-  - Modular organization (simple_test, bullet_test)
+  - Modular organization (simple_test, bullet_test, enemy_test, game_utils_test)
+- Code optimization and redundancy removal
+  - Eliminated duplicate code blocks
+  - Optimized direction array usage with static constants
+  - Improved memory efficiency and maintainability
 - Cross-platform compilation support (MSVC/GCC)
 - Code refactoring (extracted game_types.hpp to improve testability)
 - AI logging system (English output)
@@ -329,7 +357,6 @@ Uses a **modular test architecture**:
   - Untracked files: README.md, ai_log.txt, build/, tests/, executables
   - Old executables: snake, run_tests, simple_test, bullet_test
   - Need to configure .gitignore
-- **Modified but Uncommitted**: Multiple files pending commit
 
 ### 🔄 Next Steps Suggestions
 1. Add tests for SnakeGame core logic
@@ -341,12 +368,20 @@ Uses a **modular test architecture**:
 ### 📊 Code Quality
 - **Code Size**: main.cpp + game_types.hpp
 - **Test Coverage**: 40 tests, 100% passing
+  - Basic functionality: Complete coverage (2 tests)
   - Bullet class: Complete coverage (10 tests)
   - Enemy class: Complete coverage (16 tests)
   - GameUtils utility functions: Complete coverage (12 tests)
-  - Basic functionality: Tested (2 tests)
 - **Build Status**: All targets compile successfully
 - **Executables**: main, all_tests, sob
 - **Code Refactoring**: Minimal extraction refactoring following SOLID principles
+- **Internationalization**: 100% English codebase and documentation
+
+### 📈 Recent Development History
+- Complete Chinese to English conversion across all files
+- Redundant code elimination and performance optimizations
+- Comprehensive test suite expansion with GameUtils testing
+- Code quality improvements following SOLID principles
+- Enhanced build system with modular test architecture
 
 This project demonstrates the complete workflow of modern C++ game development, including architectural design, AI algorithms, template metaprogramming build systems, and test-driven development, making it an excellent example for learning modern software engineering practices.
