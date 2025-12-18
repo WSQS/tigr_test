@@ -16,4 +16,9 @@ void test_enemy_movement();
 void test_enemy_damage_and_knockback();
 void test_enemy_find_nearest_target();
 
+// GameUtils工具函数测试
+void test_manhattan_distance();
+void test_euclidean_distance();
+void test_direction_offset();
+
 #endif // TESTS_HPP
