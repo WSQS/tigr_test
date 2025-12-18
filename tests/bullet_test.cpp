@@ -24,7 +24,7 @@ void test_bullet_construction()
         Point target = {10, 0};
         Bullet bullet(start, target, 1.0f);
         
-        // 向右移动，directionX应该为1，directionY应该为0
+        // Moving right, directionX should be 1, directionY should be 0
         TEST_ASSERT_EQ(bullet.directionX, 1.0f);
         TEST_ASSERT_EQ(bullet.directionY, 0.0f);
     });
@@ -34,7 +34,7 @@ void test_bullet_construction()
         Point target = {0, 10};
         Bullet bullet(start, target, 1.0f);
         
-        // 向下移动，directionX应该为0，directionY应该为1
+        // Moving down, directionX should be 0, directionY should be 1
         TEST_ASSERT_EQ(bullet.directionX, 0.0f);
         TEST_ASSERT_EQ(bullet.directionY, 1.0f);
     });
@@ -44,7 +44,7 @@ void test_bullet_construction()
         Point target = {10, 10};
         Bullet bullet(start, target, 1.0f);
         
-        // 对角线移动，方向向量应该归一化
+        // Diagonal movement, direction vector should be normalized
         float expected = 1.0f / sqrt(2.0f);
         TEST_ASSERT(fabs(bullet.directionX - expected) < 0.001f);
         TEST_ASSERT(fabs(bullet.directionY - expected) < 0.001f);
@@ -52,10 +52,10 @@ void test_bullet_construction()
     
     framework.run_test("Bullet Zero Distance Target", [&]() {
         Point start = {5, 5};
-        Point target = {5, 5};  // 相同位置
+        Point target = {5, 5};  // Same position
         Bullet bullet(start, target, 1.0f);
         
-        // 零距离时应该默认向上
+        // Zero distance should default to upward
         TEST_ASSERT_EQ(bullet.directionX, 0.0f);
         TEST_ASSERT_EQ(bullet.directionY, -1.0f);
     });
@@ -75,7 +75,7 @@ void test_bullet_update()
         float initialX = bullet.positionX;
         bullet.update();
         
-        // 向右移动2.0单位
+        // Move 2.0 units to the right
         TEST_ASSERT_EQ(bullet.positionX, initialX + 2.0f);
         TEST_ASSERT_EQ(bullet.positionY, 0.0f);
     });
@@ -96,7 +96,7 @@ void test_bullet_update()
         Point target = {10, 0};
         Bullet bullet(start, target, 1.0f);
         
-        // 更新5次
+        // Update 5 times
         for (int i = 0; i < 5; i++) {
             bullet.update();
         }
@@ -119,14 +119,14 @@ void test_bullet_lifetime()
         
         TEST_ASSERT(bullet.isAlive());
         
-        // 更新49次，应该还活着
+        // Update 49 times, should still be alive
         for (int i = 0; i < 49; i++) {
             bullet.update();
         }
         TEST_ASSERT(bullet.isAlive());
         TEST_ASSERT_EQ(bullet.lifetime, 1);
         
-        // 再更新1次，应该死亡
+        // Update 1 more time, should die
         bullet.update();
         TEST_ASSERT(!bullet.isAlive());
         TEST_ASSERT_EQ(bullet.lifetime, 0);
@@ -140,7 +140,7 @@ void test_bullet_lifetime()
         bullet.update();
         Point pos = bullet.getPosition();
         
-        // 位置应该是1.5，转换为整数应该是1
+        // Position should be 1.5, converted to integer should be 1
         TEST_ASSERT_EQ(pos.x, 1);
         TEST_ASSERT_EQ(pos.y, 0);
     });
