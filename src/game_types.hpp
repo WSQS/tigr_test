@@ -21,6 +21,45 @@ enum Direction
     RIGHT
 };
 
+// 游戏工具函数命名空间
+namespace GameUtils
+{
+    // 计算曼哈顿距离
+    inline int manhattanDistance(const Point& a, const Point& b)
+    {
+        return abs(a.x - b.x) + abs(a.y - b.y);
+    }
+    
+    // 计算欧几里得距离
+    inline float euclideanDistance(const Point& a, const Point& b)
+    {
+        float dx = static_cast<float>(a.x - b.x);
+        float dy = static_cast<float>(a.y - b.y);
+        return sqrt(dx * dx + dy * dy);
+    }
+    
+    // 计算欧几里得距离（浮点数版本）
+    inline float euclideanDistance(float x1, float y1, float x2, float y2)
+    {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        return sqrt(dx * dx + dy * dy);
+    }
+    
+    // 获取方向的偏移量
+    inline Point getDirectionOffset(Direction dir)
+    {
+        switch (dir)
+        {
+            case UP:    return {0, -1};
+            case DOWN:  return {0, 1};
+            case LEFT:  return {-1, 0};
+            case RIGHT: return {1, 0};
+            default:    return {0, 0};
+        }
+    }
+}
+
 // 敌人特性枚举
 enum EnemyTrait
 {
