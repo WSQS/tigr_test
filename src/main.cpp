@@ -40,6 +40,8 @@ private:
     static const int LOG_BUFFER_SIZE = 100;
     int logCounter;
     
+    static const int DIRECTIONS[4][2];
+    
     Enemy* findNearestEnemy()
     {
         if (enemies.empty()) return nullptr;
@@ -95,7 +97,6 @@ private:
             if (enemy.isAlive() && enemy.position.x == x && enemy.position.y == y) return true;
         }
         
-        for (const auto &food : foods)
         for (const auto &food : foods)
         {
             if (food.x == x && food.y == y) return true;
@@ -331,7 +332,7 @@ public:
         queue.push(start);
         visited[start.x][start.y] = true;
         
-        int directions[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+        const int (*directions)[2] = DIRECTIONS;
         
         while (!queue.empty())
         {
@@ -396,7 +397,7 @@ public:
         queue.push(start);
         visited[start.x][start.y] = true;
         
-        int directions[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+        const int (*directions)[2] = DIRECTIONS;
         
         while (!queue.empty())
         {
@@ -1266,3 +1267,5 @@ int main(int argc, char *argv[])
     tigrFree(screen);
     return 0;
 }
+
+const int SnakeGame::DIRECTIONS[4][2] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
