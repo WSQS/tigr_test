@@ -1,22 +1,22 @@
 #ifndef TESTS_HPP
 #define TESTS_HPP
 
-// 基础功能测试
+// Basic functionality tests
 void test_basic_functionality();
 
-// Bullet类测试
+// Bullet class tests
 void test_bullet_construction();
 void test_bullet_update();
 void test_bullet_lifetime();
 
-// Enemy类测试
+// Enemy class tests
 void test_enemy_construction();
 void test_enemy_traits();
 void test_enemy_movement();
 void test_enemy_damage_and_knockback();
 void test_enemy_find_nearest_target();
 
-// GameUtils工具函数测试
+// GameUtils utility function tests
 void test_manhattan_distance();
 void test_euclidean_distance();
 void test_direction_offset();
