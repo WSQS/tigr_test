@@ -57,9 +57,12 @@ private:
         {
             if (!enemy.isAlive()) continue;
             
-            float dx = enemy.position.x - snake[0].x;
-            float dy = enemy.position.y - snake[0].y;
-            float distance = sqrt(dx * dx + dy * dy);
+            float distance = GameUtils::euclideanDistance(
+                static_cast<float>(snake[0].x), 
+                static_cast<float>(snake[0].y),
+                static_cast<float>(enemy.position.x), 
+                static_cast<float>(enemy.position.y)
+            );
             
             if (distance < minDistance)
             {
@@ -984,9 +987,12 @@ public:
                     if (!enemy.isAlive()) continue;
                     
                     // 简单的圆形碰撞检测
-                    float dx = bullet->positionX - enemy.position.x;
-                    float dy = bullet->positionY - enemy.position.y;
-                    float distance = sqrt(dx * dx + dy * dy);
+                    float distance = GameUtils::euclideanDistance(
+                        bullet->positionX, 
+                        bullet->positionY,
+                        static_cast<float>(enemy.position.x), 
+                        static_cast<float>(enemy.position.y)
+                    );
                     
                     if (distance < 1.0f)  // 碰撞半径
                     {
