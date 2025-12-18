@@ -26,6 +26,12 @@ int main()
     test_enemy_find_nearest_target();
     std::cout << std::endl;
     
+    std::cout << "--- GameUtils Tests ---" << std::endl;
+    test_manhattan_distance();
+    test_euclidean_distance();
+    test_direction_offset();
+    std::cout << std::endl;
+    
     std::cout << "========================================" << std::endl;
     std::cout << "       All Tests Completed              " << std::endl;
     std::cout << "========================================" << std::endl;
