@@ -65,9 +65,15 @@ struct MainSource
     static constexpr sopho::StaticString source{"src/main.cpp"};
 };
 
+struct GameConfigSource
+{
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"src/game_config.cpp"};
+};
+
 struct Main
 {
-    using Dependent = std::tuple<TigrSource, MainSource>;
+    using Dependent = std::tuple<TigrSource, MainSource, GameConfigSource>;
     static constexpr sopho::StaticString target{"main"};
 };
 
@@ -116,6 +122,12 @@ struct GameUtilsTestSource
     static constexpr sopho::StaticString source{"tests/game_utils_test.cpp"};
 };
 
+struct GameConfigTestSource
+{
+    using Dependent = std::tuple<>;
+    static constexpr sopho::StaticString source{"tests/game_config_test.cpp"};
+};
+
 struct AllTestsSource
 {
     using Dependent = std::tuple<>;
@@ -124,7 +136,7 @@ struct AllTestsSource
 
 struct AllTests
 {
-    using Dependent = std::tuple<SimpleTestSource, BulletTestSource, EnemyTestSource, GameUtilsTestSource, AllTestsSource>;
+    using Dependent = std::tuple<SimpleTestSource, BulletTestSource, EnemyTestSource, GameUtilsTestSource, GameConfigTestSource, GameConfigSource, AllTestsSource>;
     static constexpr sopho::StaticString target{"all_tests"};
 };
 

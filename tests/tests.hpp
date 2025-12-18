@@ -21,4 +21,9 @@ void test_manhattan_distance();
 void test_euclidean_distance();
 void test_direction_offset();
 
+// GameConfig class tests
+void test_game_config_construction();
+void test_game_config_dynamic_calculations();
+void test_game_config_constants();
+
 #endif // TESTS_HPP

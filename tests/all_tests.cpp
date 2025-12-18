@@ -32,6 +32,12 @@ int main()
     test_direction_offset();
     std::cout << std::endl;
     
+    std::cout << "--- GameConfig Tests ---" << std::endl;
+    test_game_config_construction();
+    test_game_config_dynamic_calculations();
+    test_game_config_constants();
+    std::cout << std::endl;
+    
     std::cout << "========================================" << std::endl;
     std::cout << "       All Tests Completed              " << std::endl;
     std::cout << "========================================" << std::endl;
