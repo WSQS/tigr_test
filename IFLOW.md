@@ -161,7 +161,7 @@ Uses a **modular test architecture**:
 
 ### Development Workflow Principles
 
-**Core Philosophy**: Every change should be **atomic**, **testable**, and **clean**
+**Core Philosophy**: Every change should be **atomic**, **testable**, **clean**, and **English-only**
 
 1. **Atomic Commits**
    - Each commit should do one thing only
@@ -224,12 +224,33 @@ Uses a **modular test architecture**:
    - User-facing messages should be in English
    - Maintain consistent terminology across all files
    - Use clear, concise English for technical descriptions
+
+7. **Language Compliance Requirements**
+   - **Mandatory English Usage**: All project content must use English exclusively
+   - **Code Review Checklist**: Verify English compliance during code reviews
+   - **Pre-commit Verification**: Check for non-English content before committing
+   - **Documentation Standards**: All technical docs must follow English writing standards
+   - **International Collaboration**: Support for global development teams
+   - **Quality Assurance**: English compliance as part of code quality metrics
 ### Code Style
 - Use C++17 standard features
 - Class names use PascalCase
 - Functions and variables use camelCase
 - Constants use UPPER_CASE
 - Detailed English comments explaining complex logic
+
+### Project Language Standards
+- **English-Only Policy**: All project content must be in English
+  - Code comments: All comments must be written in English
+  - Documentation: All documentation files must be in English
+  - Variable/Function Names: Use descriptive English names
+  - User Messages: All user-facing text should be in English
+  - Commit Messages: All git commit messages must be in English
+  - Error Messages: All error messages should be in English
+- **Terminology Consistency**: Use consistent English terminology across all files
+- **International Compliance**: Project follows international software development standards
+- **Code Review Standards**: All code changes must comply with English-only policy
+- **Documentation Standards**: Technical documentation must use clear, concise English
 
 ### Core Class Design
 
@@ -316,12 +337,16 @@ Uses a **modular test architecture**:
 2. Implement trait logic in `applyTrait` method
 3. Update trait assignment in enemy spawn system
 4. Add corresponding test cases
+5. **Language Compliance**: Ensure all new code comments are in English
+6. **Documentation**: Update documentation in English only
 
 ### Customizing AI Behavior
 1. Modify scoring algorithm in `makeAIDecision` method
 2. Adjust weight parameters and evaluation dimensions (safety, food, threat)
 3. Extend logging format (output to ai_log.txt)
 4. Test AI decision quality and game performance
+5. **Language Standards**: All new comments must follow English-only policy
+6. **Documentation**: Document changes in English
 
 ### Integrating Old Test Suite
 1. Analyze test cases in run_tests
@@ -329,6 +354,8 @@ Uses a **modular test architecture**:
 3. Create test source file structure
 4. Configure compilation dependencies and link options
 5. Verify all tests pass
+6. **Language Requirements**: Ensure all test code uses English comments
+7. **Quality Standards**: Apply English-only policy to all new test content
 
 ## Project Status
 
@@ -339,6 +366,11 @@ Uses a **modular test architecture**:
   - All Chinese comments converted to English
   - Documentation fully translated
   - Consistent English-only codebase
+- Project language standards implementation
+  - English-only policy enforced across all project content
+  - Language compliance standards documented and applied
+  - International development standards adopted
+  - Quality assurance includes language compliance checks
 - Modular test architecture (all_tests, 40/40 passing, 100%)
   - Complete test framework with performance timing
   - Tests actual code (no code duplication)
