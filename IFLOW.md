@@ -1,120 +1,120 @@
-# TIGR 贪吃蛇游戏项目
+# TIGR Snake Game Project
 
-## 项目概述
+## Project Overview
 
-这是一个基于TIGR(TIny GRaphics Library)图形库开发的增强版贪吃蛇游戏，结合了传统贪吃蛇玩法与现代游戏元素。项目使用C++17标准开发，包含智能AI系统、战斗机制和复杂的敌人系统。
+This is an enhanced snake game developed based on the TIGR (TIny GRaphics Library) graphics library, combining traditional snake gameplay with modern game elements. The project is developed using the C++17 standard and includes an intelligent AI system, combat mechanics, and a complex enemy system.
 
-### 主要特性
+### Key Features
 
-- **核心贪吃蛇机制**: 移动、成长、碰撞检测、食物收集
-- **战斗系统**: 自动炮弹攻击、敌人追踪、击退机制
-- **敌人AI系统**: 多种特性(速度、血量、击退抗性、分裂、巨大化)
-- **智能AI模式**: BFS寻路算法、威胁评估、自动决策
-- **动态难度**: 随时间递增的敌人生成和特性复杂度
-- **详细日志系统**: AI决策过程记录和分析
-- **完整测试套件**: 18个测试用例，确保代码质量
+- **Core Snake Mechanics**: Movement, growth, collision detection, food collection
+- **Combat System**: Automatic bullet attacks, enemy tracking, knockback mechanics
+- **Enemy AI System**: Multiple traits (speed, health, knockback resistance, split, giant)
+- **Intelligent AI Mode**: BFS pathfinding algorithm, threat assessment, automatic decision-making
+- **Dynamic Difficulty**: Increasing enemy spawning and trait complexity over time
+- **Detailed Logging System**: AI decision-making process recording and analysis
+- **Complete Test Suite**: 18 test cases ensuring code quality
 
-## 技术架构
+## Technical Architecture
 
-### 核心技术栈
-- **编程语言**: C++17
-- **图形库**: TIGR v3.2 (轻量级C图形库)
-- **构建系统**: 自定义模板元编程构建系统(SOB)
-- **测试框架**: 自研轻量级测试框架
-- **算法**: BFS寻路、曼哈顿距离、威胁评估算法
+### Core Technology Stack
+- **Programming Language**: C++17
+- **Graphics Library**: TIGR v3.2 (Lightweight C graphics library)
+- **Build System**: Custom template metaprogramming build system (SOB)
+- **Testing Framework**: Custom lightweight testing framework
+- **Algorithms**: BFS pathfinding, Manhattan distance, threat assessment algorithms
 
-### 项目结构
+### Project Structure
 ```
 tigr_t/
 ├── src/
-│   ├── game_types.hpp     # 游戏类型定义(Point, Direction, Bullet等)
-│   └── main.cpp           # 主程序入口(包含SnakeGame和Enemy类)
+│   ├── game_types.hpp     # Game type definitions (Point, Direction, Bullet, etc.)
+│   └── main.cpp           # Main program entry (contains SnakeGame and Enemy classes)
 ├── tests/
-│   ├── test_framework.hpp # 轻量级测试框架
-│   ├── tests.hpp          # 测试函数声明
-│   ├── simple_test.cpp    # 基础功能测试模块
-│   ├── bullet_test.cpp    # Bullet类测试模块
-│   ├── enemy_test.cpp     # Enemy类测试模块
-│   └── all_tests.cpp      # 统一测试入口(main函数)
-├── thirdparty/tigr/       # TIGR图形库
-│   ├── include/tigr.h     # 图形库头文件
-│   └── src/tigr.c         # 图形库实现
-├── build/                 # 构建输出目录
-│   ├── sob.o              # SOB构建系统目标文件
-│   ├── src/main.o         # 主程序目标文件
-│   ├── tests/             # 测试目标文件目录
+│   ├── test_framework.hpp # Lightweight testing framework
+│   ├── tests.hpp          # Test function declarations
+│   ├── simple_test.cpp    # Basic functionality test module
+│   ├── bullet_test.cpp    # Bullet class test module
+│   ├── enemy_test.cpp     # Enemy class test module
+│   └── all_tests.cpp      # Unified test entry (main function)
+├── thirdparty/tigr/       # TIGR graphics library
+│   ├── include/tigr.h     # Graphics library header file
+│   └── src/tigr.c         # Graphics library implementation
+├── build/                 # Build output directory
+│   ├── sob.o              # SOB build system object file
+│   ├── src/main.o         # Main program object file
+│   ├── tests/             # Test object file directory
 │   │   ├── simple_test.o
 │   │   ├── bullet_test.o
 │   │   ├── enemy_test.o
 │   │   └── all_tests.o
-│   └── thirdparty/tigr/src/ti.o # TIGR库目标文件
-├── sob.cpp                # 构建系统配置
-├── sob.hpp                # 构建系统实现(模板元编程)
-├── main                   # 主游戏可执行文件
-├── all_tests              # 统一测试可执行文件
-├── sob                    # 构建系统可执行文件
-├── run_tests              # 旧测试套件(待整合)
-├── ai_log.txt             # AI决策日志文件(运行时生成)
-├── IFLOW.md               # 项目文档(本文件)
-└── README.md              # 项目说明(未追踪)
+│   └── thirdparty/tigr/src/ti.o # TIGR library object file
+├── sob.cpp                # Build system configuration
+├── sob.hpp                # Build system implementation (template metaprogramming)
+├── main                   # Main game executable
+├── all_tests              # Unified test executable
+├── sob                    # Build system executable
+├── run_tests              # Old test suite (to be integrated)
+├── ai_log.txt             # AI decision log file (generated at runtime)
+├── IFLOW.md               # Project documentation (this file)
+└── README.md              # Project description (not tracked)
 ```
 
-## 构建和运行
+## Build and Run
 
-### 构建命令
+### Build Commands
 ```bash
-# 使用SOB构建系统编译所有目标
+# Compile all targets using the SOB build system
 ./sob
 
-# 构建结果：
-# - sob: 构建系统本身(自举)
-# - main: 主游戏程序
-# - all_tests: 统一测试套件(包含所有测试模块)
+# Build results:
+# - sob: Build system itself (bootstrapped)
+# - main: Main game program
+# - all_tests: Unified test suite (contains all test modules)
 ```
 
-### 运行游戏
+### Running the Game
 ```bash
-# 运行主游戏
+# Run the main game
 ./main
 
-# 运行所有测试
+# Run all tests
 ./all_tests
 ```
 
-### 游戏控制
-- **方向键**: 控制蛇的移动方向(手动模式)
-- **A键**: 切换AI模式/手动模式
-- **ESC键**: 退出游戏
+### Game Controls
+- **Arrow Keys**: Control snake movement direction (manual mode)
+- **A Key**: Toggle AI mode/manual mode
+- **ESC Key**: Exit game
 
-## 测试系统
+## Test System
 
-### 测试架构
-采用**模块化测试架构**：
-- 一个可执行文件(`all_tests`)包含所有测试
-- 测试代码分布在多个模块文件中
-- 每个模块测试独立的功能单元
-- 测试直接使用`src/game_types.hpp`中的实际代码
+### Test Architecture
+Uses a **modular test architecture**:
+- One executable (`all_tests`) contains all tests
+- Test code distributed across multiple module files
+- Each module tests independent functional units
+- Tests directly use actual code from `src/game_types.hpp`
 
-### 当前测试状态
-- **总测试数**: 28个 (100%通过)
-- **测试模块**:
-  - `simple_test.cpp`: 基础功能测试 (2个)
-  - `bullet_test.cpp`: Bullet类测试 (10个)
-    - 构造函数和方向计算 (5个)
-    - 位置更新和生命值 (3个)
-    - 生命周期管理 (2个)
-  - `enemy_test.cpp`: Enemy类测试 (16个)
-    - 构造函数和特性系统 (6个)
-    - 移动逻辑和追踪 (3个)
-    - 伤害和击退机制 (5个)
-    - 目标寻找算法 (2个)
+### Current Test Status
+- **Total Tests**: 28 (100% passing)
+- **Test Modules**:
+  - `simple_test.cpp`: Basic functionality tests (2)
+  - `bullet_test.cpp`: Bullet class tests (10)
+    - Constructor and direction calculation (5)
+    - Position update and lifetime (3)
+    - Lifecycle management (2)
+  - `enemy_test.cpp`: Enemy class tests (16)
+    - Constructor and trait system (6)
+    - Movement logic and tracking (3)
+    - Damage and knockback mechanics (5)
+    - Target finding algorithm (2)
 
-### 运行测试
+### Running Tests
 ```bash
-# 编译并运行所有测试
+# Compile and run all tests
 ./sob && ./all_tests
 
-# 测试输出示例：
+# Test output example:
 # ========================================
 #        Running All Unit Tests          
 # ========================================
@@ -136,223 +136,217 @@ tigr_t/
 # Success rate: 100%
 ```
 
-### 测试框架特性
-- 轻量级断言宏(TEST_ASSERT, TEST_ASSERT_EQ)
-- 自动性能计时
-- 模块化测试组织
-- 统一测试入口
-- 测试实际代码(无代码复制)
+### Test Framework Features
+- Lightweight assertion macros (TEST_ASSERT, TEST_ASSERT_EQ)
+- Automatic performance timing
+- Modular test organization
+- Unified test entry point
+- Tests actual code (no code duplication)
 
-## 开发约定
+## Development Conventions
 
-### 开发工作流原则
+### Development Workflow Principles
 
-**核心理念**: 每次修改都应该做到**原子化**、**可测试**、**干净**
+**Core Philosophy**: Every change should be **atomic**, **testable**, and **clean**
 
-1. **原子化提交 (Atomic Commits)**
-   - 每次提交只做一件事情
-   - 提交信息清晰描述改动的目的和内容
-   - 避免混合多个不相关的修改
-   - 每个提交都应该是可编译、可运行的稳定状态
-   - **复杂修改可以拆分成多次提交**
-   - 拆分原则: 按功能模块、按逻辑层次、按依赖关系
-   - 示例: "Add enemy split trait" 而不是 "Fix bugs and add features"
-   - 实例: 模块化重构可以拆分为:
-     1. 提取可测试代码
-     2. 实现测试架构
-     3. 更新构建系统
-     4. 同步文档更新
+1. **Atomic Commits**
+   - Each commit should do one thing only
+   - Commit messages clearly describe the purpose and content of changes
+   - Avoid mixing multiple unrelated modifications
+   - Each commit should be in a compilable, runnable stable state
+   - **Complex modifications can be split into multiple commits**
+   - Split principles: by functional module, by logical hierarchy, by dependency relationship
+   - Example: "Add enemy split trait" instead of "Fix bugs and add features"
+   - Instance: Modular refactoring can be split into:
+     1. Extract testable code
+     2. Implement test architecture
+     3. Update build system
+     4. Synchronize documentation updates
 
-2. **测试驱动 (Test-Driven)**
-   - 修改代码前先运行现有测试确保基线
-   - 添加新功能时先编写测试用例
-   - 修复bug时先写复现测试
-   - 每次修改后运行测试套件验证
-   - 使用`./sob && ./all_tests`快速验证
-   - 测试应该测试实际代码，不复制代码
+2. **Test-Driven**
+   - Run existing tests before modifying code to ensure baseline
+   - Write test cases first when adding new features
+   - Write reproduction tests first when fixing bugs
+   - Run test suite to verify after each modification
+   - Use `./sob && ./all_tests` for quick verification
+   - Tests should test actual code, not duplicate code
 
-3. **代码整洁 (Clean Code)**
-   - 提交前检查编译警告和错误
-   - 移除调试代码和无用注释
-   - 保持代码格式一致
-   - 不提交临时文件(构建产物、日志等)
-   - 使用.gitignore管理非版本控制文件
-   - 定期清理死代码和过时注释
+3. **Clean Code**
+   - Check for compilation warnings and errors before committing
+   - Remove debug code and useless comments
+   - Maintain consistent code formatting
+   - Don't commit temporary files (build artifacts, logs, etc.)
+   - Use .gitignore to manage non-version-controlled files
+   - Regularly clean up dead code and outdated comments
 
-4. **文档同步 (Documentation Sync)**
-   - **所有代码修改都必须同步更新文档**
-   - 修改项目结构时更新IFLOW.md和README.md
-   - 添加新功能时在文档中说明使用方法
-   - 修改构建配置时更新构建说明
-   - 添加测试时更新测试文档和统计
-   - 文档应该始终反映代码的当前状态
-   - 提交前检查文档是否需要更新
-   - 示例: 添加新测试文件 → 更新测试系统章节
+4. **Documentation Sync**
+   - **All code modifications must synchronize documentation updates**
+   - Update IFLOW.md and README.md when modifying project structure
+   - Document usage methods when adding new features
+   - Update build instructions when modifying build configuration
+   - Update test documentation and statistics when adding tests
+   - Documentation should always reflect the current state of the code
+   - Check if documentation needs updating before committing
+   - Example: Add new test file → Update test system chapter
 
-5. **变更验证流程**
+5. **Change Verification Process**
    ```bash
-   # 1. 修改代码
-   # 2. 编译验证
+   # 1. Modify code
+   # 2. Compile verification
    ./sob
-   # 3. 运行测试
+   # 3. Run tests
    ./all_tests
-   # 4. 检查状态
+   # 4. Check status
    git status
    git diff
-   # 5. 原子化提交
+   # 5. Atomic commit
    git add <specific-files>
    git commit -m "Clear, concise message"
    ```
 
-### 代码风格
-- 使用C++17标准特性
-- 类名使用PascalCase
-- 函数和变量使用camelCase
-- 常量使用UPPER_CASE
-- 详细的中文注释说明复杂逻辑
+### Code Style
+- Use C++17 standard features
+- Class names use PascalCase
+- Functions and variables use camelCase
+- Constants use UPPER_CASE
+- Detailed English comments explaining complex logic
 
-### 核心类设计
+### Core Class Design
 
-**代码组织**:
-- `src/game_types.hpp`: 可测试的基础类型和类定义
-- `src/main.cpp`: 主游戏逻辑和复杂类实现
+**Code Organization**:
+- `src/game_types.hpp`: Testable basic types and class definitions
+- `src/main.cpp`: Main game logic and complex class implementations
 
-**基础类型** (定义在`game_types.hpp`):
-- `Point`: 简单的坐标点结构(x, y)
-- `Direction`: 方向枚举(UP, DOWN, LEFT, RIGHT)
-- `EnemyTrait`: 敌人特性枚举(5种特性)
-- `Bullet`: 炮弹类
-  - 浮点数位置和方向
-  - 生存时间管理
-  - 碰撞检测
-  - **可独立测试**
-- `Enemy`: 敌人类
-  - 特性系统(速度、血量、击退抗性、分裂、巨大化)
-  - AI追踪行为
-  - 伤害和击退机制
-  - **可独立测试**
+**Basic Types** (defined in `game_types.hpp`):
+- `Point`: Simple coordinate point structure (x, y)
+- `Direction`: Direction enumeration (UP, DOWN, LEFT, RIGHT)
+- `EnemyTrait`: Enemy trait enumeration (5 traits)
+- `Bullet`: Bullet class
+  - Floating-point position and direction
+  - Lifetime management
+  - Collision detection
+  - **Independently testable**
+- `Enemy`: Enemy class
+  - Trait system (speed, health, knockback resistance, split, giant)
+  - AI tracking behavior
+  - Damage and knockback mechanics
+  - **Independently testable**
 
-**游戏类** (定义在`main.cpp`):
-- `SnakeGame`: 主游戏类(核心)
-  - 蛇的移动和成长逻辑
-  - 食物生成和碰撞检测
-  - 战斗系统(炮弹发射和命中)
-  - BFS寻路AI系统
-  - 敌人生成和管理
-  - 游戏状态和难度控制
-  - 蛇的移动和成长逻辑
-  - 食物生成和碰撞检测
-  - 战斗系统(炮弹发射和命中)
-  - BFS寻路AI系统
-  - 敌人生成和管理
-  - 游戏状态和难度控制
-- `TestFramework`: 轻量级测试框架(tests/test_framework.hpp)
+**Game Classes** (defined in `main.cpp`):
+- `SnakeGame`: Main game class (core)
+  - Snake movement and growth logic
+  - Food generation and collision detection
+  - Combat system (bullet firing and hits)
+  - BFS pathfinding AI system
+  - Enemy spawning and management
+  - Game state and difficulty control
+- `TestFramework`: Lightweight testing framework (tests/test_framework.hpp)
 
-### AI系统设计
-- 使用BFS算法进行路径寻找
-- 多维度评分系统(安全性、食物可达性、威胁评估)
-- 详细的决策日志记录到`ai_log.txt`
-- 支持实时模式切换
+### AI System Design
+- Uses BFS algorithm for pathfinding
+- Multi-dimensional scoring system (safety, food reachability, threat assessment)
+- Detailed decision logging to `ai_log.txt`
+- Supports real-time mode switching
 
-### 构建系统特点
-- **基于模板元编程**: SOB(Sopho Build)系统使用C++17模板元编程
-- **跨平台支持**: 自动检测MSVC(_MSC_VER)和GCC(__GNUC__)编译器
-- **三个编译上下文**:
-  - `SobCxxContext`: 构建系统自身(sob.cpp → sob)
-  - `TigrCxxContext`: 主游戏(tigr.c + main.cpp → main)
-  - `TestCxxContext`: 测试套件(simple_test.cpp → simple_test)
-- **自动依赖管理**: 通过Dependent元组声明依赖关系
-- **增量编译**: 自动生成目标文件到build/目录
-- **平台特定配置**:
-  - Linux: `-lGLU -lGL -lX11`链接标志
-  - Windows: `opengl32.lib gdi32.lib`和子系统设置
+### Build System Features
+- **Template Metaprogramming Based**: SOB (Sopho Build) system uses C++17 template metaprogramming
+- **Cross-platform Support**: Automatically detects MSVC (_MSC_VER) and GCC (__GNUC__) compilers
+- **Three Compilation Contexts**:
+  - `SobCxxContext`: Build system itself (sob.cpp → sob)
+  - `TigrCxxContext`: Main game (tigr.c + main.cpp → main)
+  - `TestCxxContext`: Test suite (simple_test.cpp → simple_test)
+- **Automatic Dependency Management**: Declares dependency relationships through Dependent tuples
+- **Incremental Compilation**: Automatically generates object files to build/ directory
+- **Platform-specific Configuration**:
+  - Linux: `-lGLU -lGL -lX11` link flags
+  - Windows: `opengl32.lib gdi32.lib` and subsystem settings
 
-### 测试框架特点
-- 简单易用的断言宏
-- 性能测试工具
-- 自动化测试报告
-- 支持基准测试和回归测试
+### Test Framework Features
+- Easy-to-use assertion macros
+- Performance testing tools
+- Automated test reporting
+- Supports benchmarking and regression testing
 
-## 游戏机制详细说明
+## Game Mechanics Detailed Description
 
-### 敌人特性系统
-- **TRAIT_SPEED_BOOST**: 速度提升(移动间隔减少40%)
-- **TRAIT_HEALTH_BOOST**: 血量提升(+3血量)
-- **TRAIT_KNOCKBACK_RESIST**: 击退抗性(减少20%击退时间)
-- **TRAIT_SPLIT**: 分裂特性(死亡时产生小敌人)
-- **TRAIT_GIANT**: 巨大化(体型+0.5倍，血量+2)
+### Enemy Trait System
+- **TRAIT_SPEED_BOOST**: Speed boost (movement interval reduced by 40%)
+- **TRAIT_HEALTH_BOOST**: Health boost (+3 health)
+- **TRAIT_KNOCKBACK_RESIST**: Knockback resistance (20% reduction in knockback time)
+- **TRAIT_SPLIT**: Split trait (spawns small enemies on death)
+- **TRAIT_GIANT**: Giant (size +0.5x, health +2)
 
-### 动态难度系统
-- 每30秒增加敌人特性数量上限
-- 每分钟增加最少敌人数量
-- 敌人生成间隔随时间递减
-- 食物收集影响蛇的移动速度和攻击频率
+### Dynamic Difficulty System
+- Increase enemy trait count limit every 30 seconds
+- Increase minimum enemy count every minute
+- Enemy spawn interval decreases over time
+- Food collection affects snake movement speed and attack frequency
 
-### AI决策算法
-1. **安全性评估**: 检查碰撞和边界
-2. **路径寻找**: BFS算法找到到食物的最短路径
-3. **区域评估**: 计算可达区域避免死路
-4. **威胁预测**: 预测敌人位置评估危险程度
-5. **综合评分**: 多维度权重计算最优方向
+### AI Decision Algorithm
+1. **Safety Assessment**: Check collisions and boundaries
+2. **Pathfinding**: BFS algorithm finds shortest path to food
+3. **Area Evaluation**: Calculate reachable area to avoid dead ends
+4. **Threat Prediction**: Predict enemy positions to assess danger level
+5. **Comprehensive Scoring**: Multi-dimensional weighted calculation of optimal direction
 
-## 扩展和修改
+## Extensions and Modifications
 
-### 添加新敌人特性
-1. 在`EnemyTrait`枚举中添加新特性
-2. 在`applyTrait`方法中实现特性逻辑
-3. 更新敌人生成系统的特性分配
-4. 添加相应的测试用例
+### Adding New Enemy Traits
+1. Add new trait to `EnemyTrait` enumeration
+2. Implement trait logic in `applyTrait` method
+3. Update trait assignment in enemy spawn system
+4. Add corresponding test cases
 
-### 自定义AI行为
-1. 修改`makeAIDecision`方法的评分算法
-2. 调整权重参数和评估维度(安全性、食物、威胁)
-3. 扩展日志记录格式(输出到ai_log.txt)
-4. 测试AI决策质量和游戏表现
+### Customizing AI Behavior
+1. Modify scoring algorithm in `makeAIDecision` method
+2. Adjust weight parameters and evaluation dimensions (safety, food, threat)
+3. Extend logging format (output to ai_log.txt)
+4. Test AI decision quality and game performance
 
-### 集成旧测试套件
-1. 分析run_tests的测试用例
-2. 在sob.cpp中添加新的构建目标
-3. 创建测试源文件结构
-4. 配置编译依赖和链接选项
-5. 验证所有测试通过
+### Integrating Old Test Suite
+1. Analyze test cases in run_tests
+2. Add new build targets in sob.cpp
+3. Create test source file structure
+4. Configure compilation dependencies and link options
+5. Verify all tests pass
 
-## 项目状态
+## Project Status
 
-### ✅ 已完成
-- 核心游戏实现(main.cpp + game_types.hpp)
-- SOB构建系统完全配置(支持3个目标: sob, main, all_tests)
-- 模块化测试架构(all_tests, 12/12通过, 100%)
-  - 测试框架完整
-  - 测试实际代码(无代码复制)
-  - 模块化组织(simple_test, bullet_test)
-- 跨平台编译支持(MSVC/GCC)
-- 代码重构(提取game_types.hpp提高可测试性)
-- AI日志系统(英文输出)
-- 游戏结束自动退出功能
+### ✅ Completed
+- Core game implementation (main.cpp + game_types.hpp)
+- SOB build system fully configured (supports 3 targets: sob, main, all_tests)
+- Modular test architecture (all_tests, 12/12 passing, 100%)
+  - Complete test framework
+  - Tests actual code (no code duplication)
+  - Modular organization (simple_test, bullet_test)
+- Cross-platform compilation support (MSVC/GCC)
+- Code refactoring (extracted game_types.hpp to improve testability)
+- AI logging system (English output)
+- Automatic exit on game over functionality
 
-### ⚠️ 待处理
-- **文件清理**: 
-  - 未追踪文件: README.md, ai_log.txt, build/, tests/, 可执行文件
-  - 旧可执行文件: snake, run_tests, simple_test, bullet_test
-  - 需要配置.gitignore
-- **已修改未提交**: 多个文件待提交
+### ⚠️ Pending
+- **File Cleanup**: 
+  - Untracked files: README.md, ai_log.txt, build/, tests/, executables
+  - Old executables: snake, run_tests, simple_test, bullet_test
+  - Need to configure .gitignore
+- **Modified but Uncommitted**: Multiple files pending commit
 
-### 🔄 下一步建议
-1. 为SnakeGame核心逻辑添加测试
-2. 考虑提取更多可测试组件
-3. 性能优化和功能扩展
-4. 集成旧测试套件(run_tests)
-5. 添加更多游戏机制测试
+### 🔄 Next Steps Suggestions
+1. Add tests for SnakeGame core logic
+2. Consider extracting more testable components
+3. Performance optimization and feature expansion
+4. Integrate old test suite (run_tests)
+5. Add more game mechanics tests
 
-### 📊 代码质量
-- **代码规模**: main.cpp + game_types.hpp
-- **测试覆盖**: 40个测试，100%通过
-  - Bullet类: 完整覆盖 (10个测试)
-  - Enemy类: 完整覆盖 (16个测试)
-  - GameUtils工具函数: 完整覆盖 (12个测试)
-  - 基础功能: 已测试 (2个测试)
-- **构建状态**: 所有目标正常编译
-- **可执行文件**: main, all_tests, sob
-- **代码重构**: 遵循SOLID原则的最小提取重构
+### 📊 Code Quality
+- **Code Size**: main.cpp + game_types.hpp
+- **Test Coverage**: 40 tests, 100% passing
+  - Bullet class: Complete coverage (10 tests)
+  - Enemy class: Complete coverage (16 tests)
+  - GameUtils utility functions: Complete coverage (12 tests)
+  - Basic functionality: Tested (2 tests)
+- **Build Status**: All targets compile successfully
+- **Executables**: main, all_tests, sob
+- **Code Refactoring**: Minimal extraction refactoring following SOLID principles
 
-这个项目展示了现代C++游戏开发的完整流程，包括架构设计、AI算法、模板元编程构建系统和测试驱动开发，是学习现代软件工程实践的优秀实例。
+This project demonstrates the complete workflow of modern C++ game development, including architectural design, AI algorithms, template metaprogramming build systems, and test-driven development, making it an excellent example for learning modern software engineering practices.
