@@ -77,9 +77,13 @@ void test_game_config_dynamic_calculations()
         
         TEST_ASSERT(interval2 < interval1);
         
-        // Should not go below minimum
-        int minInterval = config.getDynamicSpawnInterval(10000, 150);
+        // At very high time, should hit minimum limit
+        // Calculation: 150 - (50000 / 300) = 150 - 166 = -16, so return 50
+        int minInterval = config.getDynamicSpawnInterval(50000, 150);
         TEST_ASSERT_EQ(minInterval, config.minSpawnIntervalLimit);
+        
+        // Test that it doesn't go below minimum
+        TEST_ASSERT(minInterval >= config.minSpawnIntervalLimit);
     });
     
     framework.run_test("Dynamic Attack Speed Calculation", [&]() {
