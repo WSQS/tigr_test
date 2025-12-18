@@ -71,7 +71,7 @@ struct Main
     static constexpr sopho::StaticString target{"main"};
 };
 
-// 测试构建配置
+// Test build configuration
 struct TestClContext
 {
     static constexpr std::string_view cxx{"cl"};

@@ -5,7 +5,7 @@
 #include <functional>
 #include <chrono>
 
-// 简单的测试框架
+// Simple test framework
 class TestFramework {
 private:
     struct TestResult {
@@ -85,6 +85,6 @@ public:
     }
 };
 
-// 测试辅助宏
+// Test helper macros
 #define TEST_ASSERT(condition) framework.assert_true(condition, #condition)
 #define TEST_ASSERT_EQ(expected, actual) framework.assert_equals(expected, actual)
